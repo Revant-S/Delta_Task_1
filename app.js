@@ -20,6 +20,24 @@ let movesHistory = [];
 let numberOfReplaySteps = 0;
 let hasUndone = true;
 let shouldHistoryBeCleared = false;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+async function playSoundWithVolume(url, volume) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+
+  const gainNode = audioContext.createGain();
+  gainNode.gain.value = volume; // Set the volume (1 is default, increase for more volume)
+
+  source.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  source.start(0);
+}
+
 
 let undoButton = document.getElementById("undoButton");
 let redoButton = document.getElementById("redoButton");
@@ -658,6 +676,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
+  playSoundWithVolume("move.mp3", 5); 
   hasUndone = false;
   const index = occupiedPositions.indexOf(initialPosition);
   occupiedPositions[index] = finalPosition;
@@ -671,6 +690,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     updateHistory(piece, null, initialPosition, finalPosition);
     switchTheTurn();
   }
+
 }
 
 function initialSetup() {
@@ -851,6 +871,8 @@ function shootTheBullet() {
     nodeList[bulletPath[0]].appendChild(bullet);
     bulletPath.shift();
   }, 100);
+  const canonAudio = new Audio("Canon.mp3")
+  canonAudio.play();
 }
 function createResetResumeDiv() {
   const existingDiv = document.getElementById("resetResumeDiv");
