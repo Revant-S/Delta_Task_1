@@ -82,7 +82,10 @@ body {
 #pauseButton:hover, .actionButton:hover {
     background-color: darkred;
 }
-
+#movesBoard{
+   height: 100%;
+   filter: blur(90px);
+}
 .board {
     height: 70vh;
     width: 70vh;
@@ -92,7 +95,7 @@ body {
     border: 2px solid #ccc;
     border-radius: 10px;
     overflow: hidden;
-    
+
 }
 
 .gridElement {
