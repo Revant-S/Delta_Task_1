@@ -145,10 +145,12 @@ body {
 
 .grey {
     background-color: rgb(14, 90, 14);
+    opacity: 1;
 }
 
 .white {
     background-color: rgb(162, 190, 162);
+    opacity: 1;
 }
 
 .playerRed, .playerBlue, .highlight {
@@ -172,7 +174,12 @@ body {
 }
 
 .highlight {
-    border: 4px solid rgba(181, 254, 133, 0.912);
+    background-color: #4CAF50;
+    /* margin: 50px auto; */
+    /* border-radius: 10px; */
+    box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s;
 }
 
 .bullet {

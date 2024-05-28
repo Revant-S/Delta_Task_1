@@ -21,36 +21,41 @@ let numberOfReplaySteps = 0;
 let hasUndone = true;
 let shouldHistoryBeCleared = false;
 let moveNumber = 1;
-const moveBoard = document.getElementById("movesBoard")
-
+let isReadyToSwap = false;
+let swappingRech = "redrech";
+let swappingPiece = null;
+const moveBoard = document.getElementById("movesBoard");
 
 // console.log(gameNumber);
-let gameNumber = localStorage.getItem("gameNumber")
+let gameNumber = localStorage.getItem("gameNumber");
 if (!gameNumber) {
   gameNumber = 0;
 }
 
 let undoButton = document.getElementById("undoButton");
 let redoButton = document.getElementById("redoButton");
-let resetButton = document.createElement("button")
+let resetButton = document.createElement("button");
 const movesContainer = document.querySelector(".moves");
 const turnName = document.querySelector(".turnName");
 const buttonSpace = document.querySelector(".options");
 const pauseplaybuttonSpace = document.createElement("div");
 const pauseButton = document.getElementById("pauseButton");
-
+const swapButton = document.createElement("button");
+swapButton.innerText = "Swap";
+swapButton.classList.add("resButton");
 function generateTheBoard() {
   for (let index = 0; index < 64; index++) {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
-    gridElement.innerText = index;
+    // gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
 
       if (!classes.contains("piece") && !classes.contains("highlight")) {
         removeTheButtons();
         removeTheHighlight();
+        isReadyToSwap = false;
       }
       if (classes.contains("highlight") && selectedPiece) {
         removeTheButtons();
@@ -141,9 +146,10 @@ downLeft.classList.add("resButton");
 downRight.classList.add("resButton");
 rotateLeft.classList.add("resButton");
 rotateRight.classList.add("resButton");
+swapButton.id = "swap";
 
 const sRechButtonsArray = [upLeft, upRight, downLeft, downRight];
-const rechButtonsArray = [rotateLeft, rotateRight];
+const rechButtonsArray = [rotateLeft, rotateRight, swapButton];
 
 function addRechButtons() {
   if (!validatePlayer()) {
@@ -151,6 +157,7 @@ function addRechButtons() {
   }
   buttonSpace.appendChild(rotateLeft);
   buttonSpace.appendChild(rotateRight);
+  buttonSpace.appendChild(swapButton);
   rechButtonsPresent = true;
 }
 
@@ -189,7 +196,7 @@ const pieceState = {
     domElement: redRech,
     player: "red",
     direction: "right",
-    pieceId: "Rechr",
+    pieceId: "rechr",
   },
   redsRech: {
     position: 14,
@@ -246,54 +253,58 @@ function updateMovesBoard(add) {
     // console.log("div added");
     if (whichPlayerTurn == "red") {
       div.classList.add("redback");
-    }
-    else{
+    } else {
       div.classList.add("blueback");
-
     }
     let len = movesHistory.length;
-    const move = movesHistory[len-1];
+    const move = movesHistory[len - 1];
+    if (move.action == "swap") {
+      let rechpiece = move.swappingPieceOneInfo.swappingRech;
+      let rechPosition = move.swappingPieceOneInfo.initialPosition;
+      let otherPiece = move.swappingPieceTwoInfo.swappingPiece;
+      let otherPosition = move.swappingPieceTwoInfo.initialPosition;
+      const requiredString = `The ${rechpiece} on position ${rechPosition} was swapped with ${otherPiece} on position ${otherPosition}`;
+      div.innerText = requiredString;
+      div.id = move.moveNumber
+      console.log("LOOK HERE MOTHER FUCKER !!!");
+      console.log(move);
+      moveBoard.appendChild(div);
+      return;
+    }
     div.id = move.moveNumber;
     div.classList.add("moveBoardElement");
     let piece = move.piece;
     if (!move.finalOrientation) {
-      const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`
+      const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`;
       div.innerText = reqString;
-      moveBoard.appendChild(div)
-      console.log("div added");
-    }
-    else{
-      const reqString = `player ${whichPlayerTurn} rotated the ${piece}  to ${move.finalOrientation}`
-      console.log("div added");
+      moveBoard.appendChild(div);
+    } else {
+      const reqString = `player ${whichPlayerTurn} rotated the ${piece}  to ${move.finalOrientation}`;
       div.innerText = reqString;
-      moveBoard.appendChild(div)
-
+      moveBoard.appendChild(div);
     }
-  }
-  else{
+  } else {
     const childList = moveBoard.children;
     console.log(childList);
     for (let index = 0; index < childList.length; index++) {
       const element = childList[index];
-      
     }
   }
 }
 
 function gameOver(player) {
-  console.log("LOOK HERE BOY " +player);
+  console.log("LOOK HERE BOY " + player);
   // board.innerHTML = ""
   const gameOverDiv = document.createElement("div");
   // gameOverDiv.appendChild(resetButton);
   // gameOverDiv.appendChild(replay);
   alert("game is over");
-  playerRedTimer.stop()
-  playerBlueTimer.stop()
-  localStorage.setItem("gameNumber",++gameNumber)
-  localStorage.setItem(gameNumber,movesHistory);
+  playerRedTimer.stop();
+  playerBlueTimer.stop();
+  localStorage.setItem("gameNumber", ++gameNumber);
+  localStorage.setItem(gameNumber, movesHistory);
   return;
 }
-
 
 function eventListnerToTheButtons() {
   for (let index = 0; index < rechButtonsArray.length; index++) {
@@ -372,6 +383,10 @@ function rotateThepiece(pieceName, response, fromUndo) {
 function respondToTheButton(button) {
   const response = button.id;
 
+  if (response == "swap") {
+    swapTheRech();
+    return;
+  }
   let pieceName = selectedPiece;
   const current = pieceState[pieceName]["direction"];
 
@@ -410,13 +425,14 @@ function removeTheHighlight() {
 }
 function removeFromHistory(fromWhichMove) {
   movesHistory.splice(fromWhichMove + 1);
-  moveNumber-=fromWhichMove+1;
+  moveNumber -= fromWhichMove + 1;
 }
 
 function removeTheButtons() {
   if (rechButtonsPresent) {
     buttonSpace.removeChild(rotateLeft);
     buttonSpace.removeChild(rotateRight);
+    buttonSpace.removeChild(swapButton);
     rechButtonsPresent = false;
   }
   if (sRechButtonsPresent) {
@@ -503,6 +519,14 @@ function makeThePieces() {
       if (element.classList.contains("playerRed")) {
         pieceSelectedOf = "red";
       }
+      if (isReadyToSwap) {
+        if (element.parentNode.classList.contains("highlight")) {
+          console.log("control Is reaching Here !!!!!!!!!!!!");
+          console.log(element);
+          swappingAction(element.parentNode, false);
+          return;
+        }
+      }
     });
   }
   for (let index = 0; index < bluePieces.length; index++) {
@@ -510,9 +534,14 @@ function makeThePieces() {
     element.classList.add("playerBlue");
     element.classList.add("piece");
     element.addEventListener("click", (e) => {
-      // selectedPiece = e.target.parentNode.id
       if (element.classList.contains("playerBlue")) {
         pieceSelectedOf = "blue";
+      }
+      if (isReadyToSwap) {
+        if (element.parentNode.classList.contains("highlight")) {
+          swappingAction(element.parentNode, false);
+          return;
+        }
       }
     });
   }
@@ -535,19 +564,22 @@ function makeThePieces() {
   for (let index = 0; index < 2; index++) {
     const element = rech[index];
     element.classList.add("rech");
-    // element.innerText = "rech";
     const image = document.createElement("img");
     image.src = "rech.svg";
     image.style.width = "100%";
     image.style.height = "100%";
     image.style.objectFit = "contain";
-    if (index == 0) {
+    if (index == 0) {    
       image.id = "redrechImage";
     } else {
       image.id = "bluerechImage";
     }
     element.appendChild(image);
     element.addEventListener("click", () => {
+      console.log("IN THE FUNCKING EVENT LISTNER : " + isReadyToSwap);
+      if (isReadyToSwap) {
+        return;
+      }
       removeTheButtons();
       addRechButtons();
       showPossiblePositions("rech");
@@ -571,6 +603,7 @@ function makeThePieces() {
 
     element.appendChild(image);
     element.addEventListener("click", () => {
+      if (isReadyToSwap == true) return;
       removeTheButtons();
       addsRechButtons();
       showPossiblePositions("sRech");
@@ -588,6 +621,7 @@ function makeThePieces() {
 
     element.appendChild(image);
     element.addEventListener("click", () => {
+      if (isReadyToSwap == true) return;
       removeTheButtons();
       showPossiblePositions("Tank");
     });
@@ -608,6 +642,7 @@ function makeThePieces() {
 
     element.appendChild(image);
     element.addEventListener("click", () => {
+      if (isReadyToSwap == true) return;
       removeTheButtons();
       showPossiblePositions("Canon");
     });
@@ -648,7 +683,7 @@ function createTimer(player, displayElement) {
         } else {
           clearInterval(this.timer);
           this.isRunning = false;
-          gameOver(this.player)
+          gameOver(this.player);
           alert(`${this.player} lost by time`);
         }
       }, 1000);
@@ -693,10 +728,10 @@ function updateHistory(
   moveObject.finalPosition = finalPosition;
   moveObject.initialPosition = initialPosition;
   moveObject.finalOrientation = finalOrientation;
-  moveObject.moveNumber = movesHistory.length+1;
+  moveObject.moveNumber = movesHistory.length + 1;
   movesHistory.push(moveObject);
   console.log(movesHistory);
-  
+
   updateMovesBoard(true);
 }
 
@@ -724,7 +759,8 @@ function placeThePiece(position, pieceDomElement, piece) {
 
 function removeThePiece(position, pieceDomElement) {
   const divToRemove = document.getElementById(position.toString());
-
+  console.log("Here AS well");
+  console.log(divToRemove.children);
   divToRemove.removeChild(pieceDomElement);
   nodeList[position].classList.remove("piece");
 }
@@ -732,9 +768,10 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
-  // playSoundWithVolume("move.mp3", 5); 
+  // playSoundWithVolume("move.mp3", 5);
   hasUndone = false;
   const index = occupiedPositions.indexOf(initialPosition);
+  console.log(index);
   occupiedPositions[index] = finalPosition;
   if (shouldHistoryBeCleared && !fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
@@ -747,7 +784,6 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     switchTheTurn();
     moveNumber++;
   }
-
 }
 
 function initialSetup() {
@@ -764,7 +800,7 @@ function detectPiece(position) {
   const piece = nodeList[position].firstChild;
   const pieceId = piece.id;
   const pieceName = pieceId.slice(0, -1);
-  const playerIdentifier = pieceId[pieceId.length - 1];
+  const playerIdentifierForSwap = pieceId[pieceId.length - 1];
   if (once) {
     if (whichPlayerTurn == "red") {
       bulletDirection = "down";
@@ -780,10 +816,10 @@ function detectPiece(position) {
     returnObject.game = false;
   } else if (pieceName == "rech") {
     let whichRech = "bluerech";
-    if (playerIdentifier == "r") {
+    if (playerIdentifierForSwap == "r") {
       whichRech = "redrech";
     }
-    // const whichRech = playerIdentifier + "rech";
+    // const whichRech = playerIdentifierForSwap + "rech";
     let orientationOfRech = pieceState[whichRech]["direction"];
 
     if (orientationOfRech == "left") {
@@ -817,7 +853,7 @@ function detectPiece(position) {
     }
   } else if (pieceName == "sRech") {
     let whichsRech = "bluesRech";
-    if (playerIdentifier == "r") {
+    if (playerIdentifierForSwap == "r") {
       whichsRech = "redsRech";
     }
     const sRechOrientation = pieceState[whichsRech]["direction"];
@@ -887,6 +923,7 @@ function calculateThePath() {
         !nodeList[bulletPosition].classList.contains("piece") &&
         (bulletDirection == "right" || bulletDirection == "left")
       ) {
+        bulletPath.push(bulletPosition);
         break;
       }
     }
@@ -931,7 +968,7 @@ function shootTheBullet() {
     nodeList[bulletPath[0]].appendChild(bullet);
     bulletPath.shift();
   }, 100);
-  const canonAudio = new Audio("Canon.mp3")
+  const canonAudio = new Audio("Canon.mp3");
   canonAudio.play();
 }
 function createResetResumeDiv() {
@@ -1042,4 +1079,75 @@ function redo() {
     alert("No further redos !!!");
     console.log(e);
   }
+}
+
+function swapTheRech() {
+  console.log("control reaches Here");
+  removeTheHighlight();
+  for (const key in pieceState) {
+    if (
+      key == "redTitan" ||
+      key == "blueTitan" ||
+      key == "redCanon" ||
+      key == "blueCanon"
+    ) {
+      continue;
+    } else {
+      pieceState[key].domElement.parentNode.classList.add("highlight");
+      isReadyToSwap = true;
+    }
+  }
+  return;
+}
+
+function swappingAction(gridElement, fromUndo) {
+  let piecePlayer = "blue";
+  isReadyToSwap = false;
+  let playerIdentifierForSwap =
+    gridElement.firstChild.id[gridElement.firstChild.id.length - 1];
+  if (playerIdentifierForSwap == "r") {
+    piecePlayer = "red";
+  }
+  let selectedPieceForSwap =
+    piecePlayer + gridElement.firstChild.id.slice(0, -1);
+  if (whichPlayerTurn == "red") {
+    swappingRech = "redrech";
+  } else {
+    swappingRech = "bluerech";
+  }
+  let swappingRechId = pieceState[swappingRech]["pieceId"];
+  let swappingRechPiece = document.getElementById(swappingRechId.toString());
+  let exPosition1 = pieceState[swappingRech]["position"];
+  let exPosition2 = parseInt(gridElement.id);
+  console.log("For the 1st Time");
+  console.log(pieceState);;
+  // const swappingRechPiece = document.getElementById(swappingRechId);
+  removeThePiece(exPosition1, swappingRechPiece);
+  moveThePiece(exPosition2, exPosition1, selectedPieceForSwap, true);
+  placeThePiece(exPosition2, swappingRechPiece, swappingRech);
+  shootTheBullet();
+  occupiedPositions.push(exPosition2);
+  
+  console.log("for the 1st Time ");
+  console.log(pieceState);
+  // updateHistory(piece, null, initialPosition, finalPosition);
+  if (!fromUndo) {
+    let moveObject = {};
+    moveObject.action = "swap";
+    moveObject.swappingPieceOneInfo = {
+      swappingRech: swappingRech,
+      initialPosition: exPosition1,
+    };
+    moveObject.swappingPieceTwoInfo = {
+      swappingPiece: selectedPieceForSwap,
+      initialPosition: exPosition2,
+    };
+    moveObject.moveNumber = moveNumber;
+    movesHistory.push(moveObject);
+    moveNumber++;
+    updateMovesBoard(true);
+    switchTheTurn();
+    removeTheButtons();
+  }
+  removeTheHighlight();
 }
