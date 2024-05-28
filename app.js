@@ -8,7 +8,7 @@ let selectedPiecePosition;
 let whichPlayerTurn = "red";
 let rechButtonsPresent = false;
 let sRechButtonsPresent = false;
-let bulletPath = [12, 20, 28, 36, 44];
+let bulletPath = [];
 let bulletDirection = "up";
 let totalTimeOfRed = 300;
 let totalTimeOfblue = 300;
@@ -20,27 +20,19 @@ let movesHistory = [];
 let numberOfReplaySteps = 0;
 let hasUndone = true;
 let shouldHistoryBeCleared = false;
-const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-async function playSoundWithVolume(url, volume) {
-  const response = await fetch(url);
-  const arrayBuffer = await response.arrayBuffer();
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+let moveNumber = 1;
+const moveBoard = document.getElementById("movesBoard")
 
-  const source = audioContext.createBufferSource();
-  source.buffer = audioBuffer;
 
-  const gainNode = audioContext.createGain();
-  gainNode.gain.value = volume; // Set the volume (1 is default, increase for more volume)
-
-  source.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  source.start(0);
+// console.log(gameNumber);
+let gameNumber = localStorage.getItem("gameNumber")
+if (!gameNumber) {
+  gameNumber = 0;
 }
-
 
 let undoButton = document.getElementById("undoButton");
 let redoButton = document.getElementById("redoButton");
+let resetButton = document.createElement("button")
 const movesContainer = document.querySelector(".moves");
 const turnName = document.querySelector(".turnName");
 const buttonSpace = document.querySelector(".options");
@@ -122,6 +114,7 @@ const bullet = document.createElement("div");
 bullet.classList.add("bullet");
 
 // creating the buttons
+const replay = document.createElement("button");
 const rotateLeft = document.createElement("button");
 const rotateRight = document.createElement("button");
 const upLeft = document.createElement("button");
@@ -247,6 +240,61 @@ function validatePlayer() {
   }
   return true;
 }
+function updateMovesBoard(add) {
+  if (add) {
+    const div = document.createElement("div");
+    // console.log("div added");
+    if (whichPlayerTurn == "red") {
+      div.classList.add("redback");
+    }
+    else{
+      div.classList.add("blueback");
+
+    }
+    let len = movesHistory.length;
+    const move = movesHistory[len-1];
+    div.id = move.moveNumber;
+    div.classList.add("moveBoardElement");
+    let piece = move.piece;
+    if (!move.finalOrientation) {
+      const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`
+      div.innerText = reqString;
+      moveBoard.appendChild(div)
+      console.log("div added");
+    }
+    else{
+      const reqString = `player ${whichPlayerTurn} rotated the ${piece}  to ${move.finalOrientation}`
+      console.log("div added");
+      div.innerText = reqString;
+      moveBoard.appendChild(div)
+
+    }
+  }
+  else{
+    const childList = moveBoard.children;
+    console.log(childList);
+    for (let index = 0; index < childList.length; index++) {
+      const element = childList[index];
+      
+    }
+  }
+}
+
+function gameOver(player) {
+  console.log("LOOK HERE BOY " +player);
+  // board.innerHTML = ""
+  const gameOverDiv = document.createElement("div");
+  // gameOverDiv.appendChild(resetButton);
+  // gameOverDiv.appendChild(replay);
+  alert("game is over");
+  playerRedTimer.stop()
+  playerBlueTimer.stop()
+  localStorage.setItem("gameNumber",++gameNumber)
+  localStorage.setItem(gameNumber,movesHistory);
+  return;
+}
+
+
 function eventListnerToTheButtons() {
   for (let index = 0; index < rechButtonsArray.length; index++) {
     const element = rechButtonsArray[index];
@@ -275,6 +323,9 @@ function rotateThepiece(pieceName, response, fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
     shouldHistoryBeCleared = false;
     numberOfReplaySteps = 0;
+  }
+  if (!fromUndo) {
+    moveNumber++;
   }
   hasUndone = false;
   if (pieceName === "redrech") {
@@ -359,6 +410,7 @@ function removeTheHighlight() {
 }
 function removeFromHistory(fromWhichMove) {
   movesHistory.splice(fromWhichMove + 1);
+  moveNumber-=fromWhichMove+1;
 }
 
 function removeTheButtons() {
@@ -596,6 +648,7 @@ function createTimer(player, displayElement) {
         } else {
           clearInterval(this.timer);
           this.isRunning = false;
+          gameOver(this.player)
           alert(`${this.player} lost by time`);
         }
       }, 1000);
@@ -640,8 +693,11 @@ function updateHistory(
   moveObject.finalPosition = finalPosition;
   moveObject.initialPosition = initialPosition;
   moveObject.finalOrientation = finalOrientation;
+  moveObject.moveNumber = movesHistory.length+1;
   movesHistory.push(moveObject);
   console.log(movesHistory);
+  
+  updateMovesBoard(true);
 }
 
 function switchTheTurn() {
@@ -676,7 +732,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
-  playSoundWithVolume("move.mp3", 5); 
+  // playSoundWithVolume("move.mp3", 5); 
   hasUndone = false;
   const index = occupiedPositions.indexOf(initialPosition);
   occupiedPositions[index] = finalPosition;
@@ -689,6 +745,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     shootTheBullet();
     updateHistory(piece, null, initialPosition, finalPosition);
     switchTheTurn();
+    moveNumber++;
   }
 
 }
@@ -853,6 +910,7 @@ function calculateThePath() {
 
 function shootTheBullet() {
   calculateThePath();
+  // console.log(buttetPath);
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
     if (!bulletPath.length) {
@@ -864,7 +922,9 @@ function shootTheBullet() {
       return;
     }
     if (bulletPath[0] == -1) {
-      alert("game is over");
+      gameOver(whichPlayerTurn);
+      // alert("game is over");
+      // localStorage.setItem("")
       clearInterval(interval);
       nodeList[finalBulletPosition - 1].removeChild(bullet);
     }
@@ -951,8 +1011,10 @@ function undo() {
     }
     hasUndone = true;
     switchTheTurn();
+    updateMovesBoard(false);
   } catch (e) {
     alert("No further Undos !!!");
+    console.log(e);
   }
 }
 

@@ -78,14 +78,48 @@ body {
     transition: background-color 0.3s ease;
     margin: 5%;
 }
-
+/* .moves{
+    overflow: scroll;
+} */
 #pauseButton:hover, .actionButton:hover {
     background-color: darkred;
 }
 #movesBoard{
    height: 100%;
-   filter: blur(90px);
+   display: grid;
+   grid-template-columns: repeat(2, 1fr); 
+   gap: 10px; 
+   overflow: hidden;
+   backdrop-filter: blur(5px);
 }
+
+.moveBoardElement{
+    padding: 1%;
+    text-align: left;
+    border: 2px black solid;
+    width: 100%;
+    /* max-height: 2%; */
+    height: auto;
+    margin: 2%;
+    backdrop-filter: blur(10px);
+    
+    
+}
+.redback{
+    color: red;
+    /* background-color:rgb(248, 211, 211) ; */
+    backdrop-filter: blur(10px);
+}
+.blueback{
+    color: rgb(158, 158, 255);
+    /* background-color:rgb(248, 211, 211) ; */
+    backdrop-filter: blur(10px);
+
+}
+
+
+
+
 .board {
     height: 70vh;
     width: 70vh;
@@ -97,7 +131,11 @@ body {
     overflow: hidden;
 
 }
-
+.gameOverBoard{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .gridElement {
     display: flex;
     justify-content: center;
@@ -124,7 +162,8 @@ body {
     padding: 2px;
 }
 .moves{
-    border: 2px black solid;
+    /* border: 2px black solid; */
+    overflow: scroll;
     width: 100%;
 }
 .playerBlue {
