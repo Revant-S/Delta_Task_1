@@ -92,7 +92,6 @@ body {
    overflow: hidden;
    backdrop-filter: blur(5px);
 }
-
 .moveBoardElement{
     padding: 1%;
     text-align: left;

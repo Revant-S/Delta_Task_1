@@ -9,6 +9,7 @@ let whichPlayerTurn = "red";
 let rechButtonsPresent = false;
 let sRechButtonsPresent = false;
 let bulletPath = [];
+let bulletDirectionArray = [];
 let bulletDirection = "up";
 let totalTimeOfRed = 300;
 let totalTimeOfblue = 300;
@@ -24,7 +25,13 @@ let moveNumber = 1;
 let isReadyToSwap = false;
 let swappingRech = "redrech";
 let swappingPiece = null;
+let tankWeakningConfig = true;
+let bulletImageInUse  = null;
 const moveBoard = document.getElementById("movesBoard");
+const bulletUp = document.createElement("div");
+const bulletDown = document.createElement("div");
+const bulletLeft = document.createElement("div");
+const bulletRight = document.createElement("div");
 
 let gameNumber = localStorage.getItem("gameNumber");
 if (!gameNumber) {
@@ -150,6 +157,47 @@ swapButton.id = "swap";
 const sRechButtonsArray = [upLeft, upRight, downLeft, downRight];
 const rechButtonsArray = [rotateLeft, rotateRight, swapButton];
 
+function makeTheBulletDivs() {
+  bulletUp.classList.add("gridElement");
+  bulletDown.classList.add("gridElement");
+  bulletLeft.classList.add("gridElement");
+  bulletRight.classList.add("gridElement");
+
+  const imageUp = document.createElement("img");
+  imageUp.src = "bullet.svg";
+  imageUp.style.width = "100%";
+  imageUp.style.height = "100%";
+  imageUp.style.objectFit = "contain";
+  imageUp.style.transform = "rotate(0deg)";
+  bulletUp.appendChild(imageUp);
+
+  const imageRight = document.createElement("img");
+  imageRight.src = "bullet.svg";
+  imageRight.style.width = "100%";
+  imageRight.style.height = "100%";
+  imageRight.style.objectFit = "contain";
+  imageRight.style.transform = "rotate(90deg)";
+  bulletRight.appendChild(imageRight);
+
+  const imageDown = document.createElement("img");
+  imageDown.src = "bullet.svg";
+  imageDown.style.width = "100%";
+  imageDown.style.height = "100%";
+  imageDown.style.objectFit = "contain";
+  imageDown.style.transform = "rotate(180deg)";
+  bulletDown.appendChild(imageDown);
+  
+  const imageLeft = document.createElement("img");
+  imageLeft.src = "bullet.svg";
+  imageLeft.style.width = "100%";
+  imageLeft.style.height = "100%";
+  imageLeft.style.objectFit = "contain";
+  imageLeft.style.transform = "rotate(270deg)"; // Corrected this line
+  bulletLeft.appendChild(imageLeft);
+}
+
+makeTheBulletDivs();
+
 function addRechButtons() {
   if (!validatePlayer()) {
     return;
@@ -247,6 +295,7 @@ function validatePlayer() {
   return true;
 }
 function updateMovesBoard(add) {
+  console.log(movesHistory);
   if (add) {
     const div = document.createElement("div");
     if (whichPlayerTurn == "red") {
@@ -270,7 +319,7 @@ function updateMovesBoard(add) {
     div.id = move.moveNumber;
     div.classList.add("moveBoardElement");
     let piece = move.piece;
-    if (!move.finalOrientation) {
+    if (move.finalOrientation == move.initialOrientation) {
       const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`;
       div.innerText = reqString;
       moveBoard.appendChild(div);
@@ -288,7 +337,6 @@ function updateMovesBoard(add) {
 }
 
 function gameOver(player) {
-  
   const gameOverDiv = document.createElement("div");
   alert("game is over");
   playerRedTimer.stop();
@@ -359,7 +407,6 @@ function rotateThepiece(pieceName, response, fromUndo) {
       element.style.transform = "rotate(90deg)";
     }
   } else if (pieceName == "bluesRech") {
-    
     const element = document.getElementById("bluesRechImage");
     if (response == "upLeft") {
       element.style.transform = "rotate(270deg)";
@@ -371,8 +418,10 @@ function rotateThepiece(pieceName, response, fromUndo) {
       element.style.transform = "rotate(90deg)";
     }
   }
-  if (!fromUndo) {updateHistory(pieceName,initialOrientation, response, null, null);}
-  
+  if (!fromUndo) {
+    updateHistory(pieceName, initialOrientation, response, null, null);
+  }
+
   console.log("After Rotation");
   console.log(movesHistory);
   pieceState[pieceName]["direction"] = response;
@@ -400,7 +449,7 @@ function respondToTheButton(button) {
   shootTheBullet();
   switchTheTurn();
   removeTheHighlight();
-  removeTheButtons();  
+  removeTheButtons();
 }
 
 const titan = [redTitan, blueTitan];
@@ -751,8 +800,6 @@ function removeThePiece(position, pieceDomElement) {
   nodeList[position].classList.remove("piece");
 }
 
-
-
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   if (shouldHistoryBeCleared && !fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
@@ -770,7 +817,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
 
   if (!fromUndo) {
     shootTheBullet();
-    updateHistory(piece, null, null,initialPosition, finalPosition);
+    updateHistory(piece, null, null, initialPosition, finalPosition);
     switchTheTurn();
     moveNumber++;
   }
@@ -784,7 +831,15 @@ function initialSetup() {
 }
 
 initialSetup();
-
+function initialDirectionOfTheBullet() {
+  console.log(bulletDirection);
+  if (whichPlayerTurn == "red") {
+    bulletDirection = "down";
+  } else {
+    bulletDirection = "up";
+  }
+  console.log("reaching");
+}
 function detectPiece(position) {
   let returnObject = { canContinue: true, increment: 0, game: true };
   const piece = nodeList[position].firstChild;
@@ -799,9 +854,20 @@ function detectPiece(position) {
     }
     once = false;
   }
-  if (pieceName == "Tank" || pieceName == "Canon") {
+  if ((pieceName == "Tank" && !tankWeakningConfig) || pieceName == "Canon") {
     returnObject.canContinue = false;
     returnObject.increment = 0;
+  } else if (pieceName == "Tank" && tankWeakningConfig) {
+    if (bulletDirection == "up" || bulletDirection == "down") {
+      returnObject.canContinue = false;
+      returnObject.increment = 0;
+    } else {
+      if (bulletDirection == "left") {
+        returnObject.increment = -1;
+      } else {
+        returnObject.increment = 1;
+      }
+    }
   } else if (pieceName == "Titan") {
     returnObject.game = false;
   } else if (pieceName == "rech") {
@@ -901,13 +967,9 @@ function calculateThePath() {
 
   increment = whichPlayerTurn == "red" ? (increment = 8) : (increment = -8);
   while (bulletPosition <= 63 && bulletPosition >= 0) {
+    bulletDirectionArray.push(bulletDirection);
+
     if (bulletPosition % 8 == 0 || (bulletPosition + 1) % 8 == 0) {
-      // if (
-      //   nodeList[bulletPosition].classList.contains("piece") &&
-      //   (bulletDirection == "up" || bulletDirection == "down")
-      // ) {
-      //   break;
-      // }
       if (
         !nodeList[bulletPosition].classList.contains("piece") &&
         (bulletDirection == "right" || bulletDirection == "left")
@@ -932,15 +994,17 @@ function calculateThePath() {
     }
     bulletPosition += increment;
   }
+  // bulletDirectionArray.push(bulletDirection)
 }
 
 function shootTheBullet() {
+  initialDirectionOfTheBullet();
   calculateThePath();
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
     if (!bulletPath.length) {
       clearInterval(interval);
-      nodeList[finalBulletPosition].removeChild(bullet);
+      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
       once = true;
       oncesRech = true;
       return;
@@ -948,11 +1012,36 @@ function shootTheBullet() {
     if (bulletPath[0] == -1) {
       gameOver(whichPlayerTurn);
       clearInterval(interval);
-      nodeList[finalBulletPosition - 1].removeChild(bullet);
+      nodeList[finalBulletPosition - 1].removeChild(bulletImageInUse);
     }
-    nodeList[bulletPath[0]].appendChild(bullet);
+    let bulletDirectionForcomp = bulletDirectionArray[0]
+    if (bulletDirectionForcomp == "up") {
+      nodeList[bulletPath[0]].appendChild(bulletUp); 
+      bulletImageInUse = bulletUp;
+    }else if (bulletDirectionForcomp =="left") {
+      nodeList[bulletPath[0]].appendChild(bulletLeft); 
+      bulletImageInUse = bulletLeft;
+    }
+    else if (bulletDirectionForcomp == "down") {
+      nodeList[bulletPath[0]].appendChild(bulletDown); 
+      bulletImageInUse = bulletDown;
+    }
+    else if (bulletDirectionForcomp == "right") {
+      nodeList[bulletPath[0]].appendChild(bulletRight); 
+      bulletImageInUse = bulletRight;
+    }
+    console.log(bulletImageInUse);
+    try {
+      if (nodeList[bulletPath[0]].classList.contains("piece") ) {
+        nodeList[bulletPath[0]].removeChild(bulletImageInUse);
+        console.log(nodeList[0].children);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    bulletDirectionArray.shift();
     bulletPath.shift();
-  }, 100);
+  }, 200);
   const canonAudio = new Audio("Canon.mp3");
   canonAudio.play();
 }
@@ -1022,13 +1111,26 @@ function undo() {
     if (positions.action == "swap") {
       let swappingPieceOneInfo = positions.swappingPieceOneInfo;
       let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
-      removeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement);
-      removeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement);
-      placeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement , swappingPieceOneInfo.swappingRech);
-      placeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement , swappingPieceTwoInfo.swappingPiece);
+      removeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        swappingPieceOneInfo.swappingRechDomElement
+      );
+      removeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        swappingPieceTwoInfo.selectedPieceDomElement
+      );
+      placeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        swappingPieceOneInfo.swappingRechDomElement,
+        swappingPieceOneInfo.swappingRech
+      );
+      placeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        swappingPieceTwoInfo.selectedPieceDomElement,
+        swappingPieceTwoInfo.swappingPiece
+      );
       numberOfReplaySteps++;
-    }
-    else if (!rotation) {
+    } else if (!rotation) {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       numberOfReplaySteps++;
@@ -1062,12 +1164,25 @@ function redo() {
       console.log(movesHistory);
       let swappingPieceOneInfo = positions.swappingPieceOneInfo;
       let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
-      removeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement);
-      removeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement);
-      placeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement , swappingPieceOneInfo.swappingRech);
-      placeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement , swappingPieceTwoInfo.swappingPiece);
-    }
-    else if (!rotation) {
+      removeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        swappingPieceOneInfo.swappingRechDomElement
+      );
+      removeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        swappingPieceTwoInfo.selectedPieceDomElement
+      );
+      placeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        swappingPieceOneInfo.swappingRechDomElement,
+        swappingPieceOneInfo.swappingRech
+      );
+      placeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        swappingPieceTwoInfo.selectedPieceDomElement,
+        swappingPieceTwoInfo.swappingPiece
+      );
+    } else if (!rotation) {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       moveThePiece(initialPosition, finalPosition, piece, true);
@@ -1124,8 +1239,8 @@ function swappingAction(gridElement, fromUndo) {
   let exPosition1 = pieceState[swappingRech]["position"];
   let exPosition2 = parseInt(gridElement.id);
   removeThePiece(exPosition1, swappingRechPiece);
-  let index2 = occupiedPositions.indexOf(exPosition1)
-  occupiedPositions.splice(index2,1);
+  let index2 = occupiedPositions.indexOf(exPosition1);
+  occupiedPositions.splice(index2, 1);
   occupiedPositions.push(exPosition2);
   moveThePiece(exPosition2, exPosition1, selectedPieceForSwap, true);
   placeThePiece(exPosition2, swappingRechPiece, swappingRech);
@@ -1136,12 +1251,12 @@ function swappingAction(gridElement, fromUndo) {
     moveObject.swappingPieceOneInfo = {
       swappingRech: swappingRech,
       initialPosition: exPosition1,
-      swappingRechDomElement : swappingRechPiece
+      swappingRechDomElement: swappingRechPiece,
     };
     moveObject.swappingPieceTwoInfo = {
       swappingPiece: selectedPieceForSwap,
       initialPosition: exPosition2,
-      selectedPieceDomElement : pieceState[selectedPieceForSwap]["domElement"]
+      selectedPieceDomElement: pieceState[selectedPieceForSwap]["domElement"],
     };
     moveObject.moveNumber = moveNumber;
     movesHistory.push(moveObject);
