@@ -26,7 +26,8 @@ let isReadyToSwap = false;
 let swappingRech = "redrech";
 let swappingPiece = null;
 let tankWeakningConfig = true;
-let bulletImageInUse  = null;
+let bulletImageInUse = null;
+
 const moveBoard = document.getElementById("movesBoard");
 const bulletUp = document.createElement("div");
 const bulletDown = document.createElement("div");
@@ -54,7 +55,7 @@ function generateTheBoard() {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
-    gridElement.innerText = index;
+    // gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
 
@@ -186,7 +187,7 @@ function makeTheBulletDivs() {
   imageDown.style.objectFit = "contain";
   imageDown.style.transform = "rotate(180deg)";
   bulletDown.appendChild(imageDown);
-  
+
   const imageLeft = document.createElement("img");
   imageLeft.src = "bullet.svg";
   imageLeft.style.width = "100%";
@@ -796,7 +797,9 @@ function placeThePiece(position, pieceDomElement, piece) {
 
 function removeThePiece(position, pieceDomElement) {
   const divToRemove = document.getElementById(position.toString());
-  divToRemove.removeChild(pieceDomElement);
+  if (pieceDomElement && divToRemove.contains(pieceDomElement)) {
+    divToRemove.removeChild(pieceDomElement);
+  }
   nodeList[position].classList.remove("piece");
 }
 
@@ -831,6 +834,22 @@ function initialSetup() {
 }
 
 initialSetup();
+
+function destroyThesRech(piece) {
+  let srechPosition = pieceState[piece]["position"];
+  let srechDomElement = pieceState[piece]["domElement"];
+  console.log(srechDomElement);
+  removeThePiece(srechPosition, srechDomElement);
+  let index3 = occupiedPositions.indexOf(srechPosition);
+  occupiedPositions.splice(index3, 1);
+  console.log(occupiedPositions);
+  const explosionAudio = new Audio("explosion.mp3");
+  explosionAudio.play()
+  pieceState[piece]["destroyed"] = true;
+  bulletPath = [];
+  bulletDirectionArray = [];
+}
+
 function initialDirectionOfTheBullet() {
   console.log(bulletDirection);
   if (whichPlayerTurn == "red") {
@@ -840,6 +859,12 @@ function initialDirectionOfTheBullet() {
   }
   console.log("reaching");
 }
+
+
+
+
+
+
 function detectPiece(position) {
   let returnObject = { canContinue: true, increment: 0, game: true };
   const piece = nodeList[position].firstChild;
@@ -911,6 +936,8 @@ function detectPiece(position) {
     if (playerIdentifierForSwap == "r") {
       whichsRech = "redsRech";
     }
+
+    // logic for sRech
     const sRechOrientation = pieceState[whichsRech]["direction"];
     if (sRechOrientation == "upRight") {
       if (bulletDirection == "down") {
@@ -921,6 +948,10 @@ function detectPiece(position) {
         bulletDirection = "up";
       } else {
         returnObject.canContinue = false;
+        returnObject.destroyedsRech = {
+          isDestroyed: true,
+          whichsRech: whichsRech,
+        };
       }
     } else if (sRechOrientation == "upLeft") {
       if (bulletDirection == "right") {
@@ -931,6 +962,11 @@ function detectPiece(position) {
         bulletDirection = "left";
       } else {
         returnObject.canContinue = false;
+        console.log("Here IS THE CONTROL");
+        returnObject.destroyedsRech = {
+          isDestroyed: true,
+          whichsRech: whichsRech,
+        };
       }
     } else if (sRechOrientation == "downLeft") {
       if (bulletDirection == "right") {
@@ -940,7 +976,12 @@ function detectPiece(position) {
         returnObject.increment = -1;
         bulletDirection = "left";
       } else {
+        console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
+        returnObject.destroyedsRech = {
+          isDestroyed: true,
+          whichsRech: whichsRech,
+        };
       }
     } else if (sRechOrientation == "downRight") {
       if (bulletDirection == "up") {
@@ -950,7 +991,12 @@ function detectPiece(position) {
         returnObject.increment = 8;
         bulletDirection = "down";
       } else {
+        console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
+        returnObject.destroyedsRech = {
+          isDestroyed: true,
+          whichsRech: whichsRech,
+        };
       }
     }
   }
@@ -968,7 +1014,6 @@ function calculateThePath() {
   increment = whichPlayerTurn == "red" ? (increment = 8) : (increment = -8);
   while (bulletPosition <= 63 && bulletPosition >= 0) {
     bulletDirectionArray.push(bulletDirection);
-
     if (bulletPosition % 8 == 0 || (bulletPosition + 1) % 8 == 0) {
       if (
         !nodeList[bulletPosition].classList.contains("piece") &&
@@ -983,7 +1028,16 @@ function calculateThePath() {
     } else {
       bulletPath.push(bulletPosition);
       const forwardObject = detectPiece(bulletPosition);
+      console.log("forward Object");
+      console.log(forwardObject);
       if (!forwardObject.canContinue) {
+        if (forwardObject.destroyedsRech && forwardObject.destroyedsRech.isDestroyed) {
+          if (forwardObject.destroyedsRech.whichsRech == "redsRech") {
+            bulletPath.push(-2);
+          } else {
+            bulletPath.push(-3);
+          }
+        }
         break;
       }
       if (!forwardObject.game) {
@@ -1002,46 +1056,60 @@ function shootTheBullet() {
   calculateThePath();
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
-    if (!bulletPath.length) {
-      clearInterval(interval);
-      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
-      once = true;
-      oncesRech = true;
-      return;
-    }
-    if (bulletPath[0] == -1) {
-      gameOver(whichPlayerTurn);
-      clearInterval(interval);
-      nodeList[finalBulletPosition - 1].removeChild(bulletImageInUse);
-    }
-    let bulletDirectionForcomp = bulletDirectionArray[0]
-    if (bulletDirectionForcomp == "up") {
-      nodeList[bulletPath[0]].appendChild(bulletUp); 
-      bulletImageInUse = bulletUp;
-    }else if (bulletDirectionForcomp =="left") {
-      nodeList[bulletPath[0]].appendChild(bulletLeft); 
-      bulletImageInUse = bulletLeft;
-    }
-    else if (bulletDirectionForcomp == "down") {
-      nodeList[bulletPath[0]].appendChild(bulletDown); 
-      bulletImageInUse = bulletDown;
-    }
-    else if (bulletDirectionForcomp == "right") {
-      nodeList[bulletPath[0]].appendChild(bulletRight); 
-      bulletImageInUse = bulletRight;
-    }
-    console.log(bulletImageInUse);
-    try {
-      if (nodeList[bulletPath[0]].classList.contains("piece") ) {
+ 
+      if (!bulletPath.length) {
+        clearInterval(interval);
+        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+        once = true;
+        oncesRech = true;
+        return;
+      }
+      if (bulletPath[0] == -1) {
+        gameOver(whichPlayerTurn);
+        clearInterval(interval);
+        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+        bulletPath = [];
+        return
+      }
+      if (bulletPath[0] == -2) {
+        destroyThesRech("redsRech");
+        clearInterval(interval);
+        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+
+        return
+      }
+      if (bulletPath[0] == -3) {
+        destroyThesRech("bluesRech");
+        clearInterval(interval);
+        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+        return;
+      }
+      console.log("yes IT is Reching here");
+      let bulletDirectionForcomp = bulletDirectionArray[0];
+      if (bulletDirectionForcomp == "up") {
+        nodeList[bulletPath[0]].appendChild(bulletUp);
+        bulletImageInUse = bulletUp;
+      } else if (bulletDirectionForcomp == "left") {
+        nodeList[bulletPath[0]].appendChild(bulletLeft);
+        bulletImageInUse = bulletLeft;
+      } else if (bulletDirectionForcomp == "down") {
+        nodeList[bulletPath[0]].appendChild(bulletDown);
+        bulletImageInUse = bulletDown;
+      } else if (bulletDirectionForcomp == "right") {
+        nodeList[bulletPath[0]].appendChild(bulletRight);
+        bulletImageInUse = bulletRight;
+      }
+     try {
+      if (nodeList[bulletPath[0]].classList.contains("piece")) {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
         console.log(nodeList[0].children);
       }
-    } catch (error) {
+     } catch (error) {
       console.log(error);
-    }
+     }
     bulletDirectionArray.shift();
     bulletPath.shift();
-  }, 200);
+  }, 100);
   const canonAudio = new Audio("Canon.mp3");
   canonAudio.play();
 }
