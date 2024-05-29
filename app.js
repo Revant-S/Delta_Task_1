@@ -332,6 +332,7 @@ function rotateThepiece(pieceName, response, fromUndo) {
     moveNumber++;
   }
   hasUndone = false;
+  const initialOrientation = pieceState[pieceName]["direction"];
   if (pieceName === "redrech") {
     const rechElement = document.getElementById("redrechImage");
     if (response == "right") {
@@ -358,7 +359,7 @@ function rotateThepiece(pieceName, response, fromUndo) {
       element.style.transform = "rotate(90deg)";
     }
   } else if (pieceName == "bluesRech") {
-
+    
     const element = document.getElementById("bluesRechImage");
     if (response == "upLeft") {
       element.style.transform = "rotate(270deg)";
@@ -370,7 +371,10 @@ function rotateThepiece(pieceName, response, fromUndo) {
       element.style.transform = "rotate(90deg)";
     }
   }
-
+  if (!fromUndo) {updateHistory(pieceName,initialOrientation, response, null, null);}
+  
+  console.log("After Rotation");
+  console.log(movesHistory);
   pieceState[pieceName]["direction"] = response;
 }
 
@@ -392,7 +396,6 @@ function respondToTheButton(button) {
     return;
   }
 
-  updateHistory(pieceName, current, null, null);
   rotateThepiece(pieceName, response, false);
   shootTheBullet();
   switchTheTurn();
@@ -705,6 +708,7 @@ playerRedTimer.start();
 
 function updateHistory(
   piece,
+  initialOrientation,
   finalOrientation,
   initialPosition,
   finalPosition
@@ -714,6 +718,7 @@ function updateHistory(
   moveObject.piece = piece;
   moveObject.finalPosition = finalPosition;
   moveObject.initialPosition = initialPosition;
+  moveObject.initialOrientation = initialOrientation;
   moveObject.finalOrientation = finalOrientation;
   moveObject.moveNumber = movesHistory.length + 1;
   movesHistory.push(moveObject);
@@ -765,7 +770,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
 
   if (!fromUndo) {
     shootTheBullet();
-    updateHistory(piece, null, initialPosition, finalPosition);
+    updateHistory(piece, null, null,initialPosition, finalPosition);
     switchTheTurn();
     moveNumber++;
   }
@@ -1012,14 +1017,13 @@ function undo() {
     let index = movesHistory.length - 1 - numberOfReplaySteps;
     let rotation = null;
     const positions = movesHistory[index];
-    rotation = positions.finalOrientation;
+    rotation = positions.initialOrientation;
     let piece = positions.piece;
     if (positions.action == "swap") {
       let swappingPieceOneInfo = positions.swappingPieceOneInfo;
       let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
       removeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement);
       removeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement);
-
       placeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement , swappingPieceOneInfo.swappingRech);
       placeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement , swappingPieceTwoInfo.swappingPiece);
       numberOfReplaySteps++;
@@ -1030,6 +1034,9 @@ function undo() {
       numberOfReplaySteps++;
       moveThePiece(finalPosition, initialPosition, piece, true);
     } else {
+      console.log("During UnDo");
+      console.log(index);
+      console.log(movesHistory);
       numberOfReplaySteps++;
       rotateThepiece(piece, rotation, true);
     }
@@ -1044,25 +1051,38 @@ function undo() {
 
 function redo() {
   try {
-    let index = movesHistory.length - numberOfReplaySteps;
-    if (hasUndone) {
-      let rotation = null;
-      numberOfReplaySteps--;
-      const positions = movesHistory[index];
-      rotation = positions.finalOrientation;
-      let piece = positions.piece;
-      if (!rotation) {
-        let initialPosition = positions.initialPosition;
-        let finalPosition = positions.finalPosition;
-        moveThePiece(initialPosition, finalPosition, piece, true);
-      } else {
-        rotateThepiece(piece, rotation, true);
-      }
-      switchTheTurn();
-      shouldHistoryBeCleared = true;
+    shouldHistoryBeCleared = true;
+    numberOfReplaySteps--;
+    let index = movesHistory.length - 1 - numberOfReplaySteps;
+    let rotation = null;
+    const positions = movesHistory[index];
+    rotation = positions.finalOrientation;
+    let piece = positions.piece;
+    if (positions.action == "swap") {
+      console.log(movesHistory);
+      let swappingPieceOneInfo = positions.swappingPieceOneInfo;
+      let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
+      removeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement);
+      removeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement);
+      placeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement , swappingPieceOneInfo.swappingRech);
+      placeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement , swappingPieceTwoInfo.swappingPiece);
     }
+    else if (!rotation) {
+      let initialPosition = positions.initialPosition;
+      let finalPosition = positions.finalPosition;
+      moveThePiece(initialPosition, finalPosition, piece, true);
+    } else {
+      console.log("During Redo");
+      console.log(index);
+      console.log(movesHistory);
+      rotateThepiece(piece, rotation, true);
+    }
+    hasUndone = true;
+    switchTheTurn();
+    updateMovesBoard(false);
   } catch (e) {
-    alert("No further redos !!!");
+    alert("No further Undos !!!");
+    console.log(e);
   }
 }
 
@@ -1132,4 +1152,3 @@ function swappingAction(gridElement, fromUndo) {
   }
   removeTheHighlight();
 }
-
