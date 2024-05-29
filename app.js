@@ -26,7 +26,6 @@ let swappingRech = "redrech";
 let swappingPiece = null;
 const moveBoard = document.getElementById("movesBoard");
 
-// console.log(gameNumber);
 let gameNumber = localStorage.getItem("gameNumber");
 if (!gameNumber) {
   gameNumber = 0;
@@ -48,7 +47,7 @@ function generateTheBoard() {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
-    // gridElement.innerText = index;
+    gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
 
@@ -265,7 +264,7 @@ function updateMovesBoard(add) {
       let otherPosition = move.swappingPieceTwoInfo.initialPosition;
       const requiredString = `The ${rechpiece} on position ${rechPosition} was swapped with ${otherPiece} on position ${otherPosition}`;
       div.innerText = requiredString;
-      div.id = move.moveNumber
+      div.id = move.moveNumber;
       console.log("LOOK HERE MOTHER FUCKER !!!");
       console.log(move);
       moveBoard.appendChild(div);
@@ -334,6 +333,7 @@ function rotateThepiece(pieceName, response, fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
     shouldHistoryBeCleared = false;
     numberOfReplaySteps = 0;
+    moveBoard.removeChild(moveBoard.lastElementChild);
   }
   if (!fromUndo) {
     moveNumber++;
@@ -569,7 +569,7 @@ function makeThePieces() {
     image.style.width = "100%";
     image.style.height = "100%";
     image.style.objectFit = "contain";
-    if (index == 0) {    
+    if (index == 0) {
       image.id = "redrechImage";
     } else {
       image.id = "bluerechImage";
@@ -589,7 +589,6 @@ function makeThePieces() {
   for (let index = 0; index < 2; index++) {
     const element = sRech[index];
     element.classList.add("sRech");
-    // element.innerText = "sRech";
     const image = document.createElement("img");
     image.src = "semiRech.svg";
     image.style.width = "100%";
@@ -630,7 +629,6 @@ function makeThePieces() {
   for (let index = 0; index < 2; index++) {
     const element = canon[index];
     element.classList.add("Canon");
-    // element.innerText = "Canon";
     const image = document.createElement("img");
     image.src = "canon.svg";
     image.style.width = "100%";
@@ -764,19 +762,28 @@ function removeThePiece(position, pieceDomElement) {
   divToRemove.removeChild(pieceDomElement);
   nodeList[position].classList.remove("piece");
 }
+
+
+
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
+  console.log("Final Position : " + finalPosition);
+  console.log("Initial Position : " + initialPosition );
+
+
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
-  // playSoundWithVolume("move.mp3", 5);
   hasUndone = false;
   const index = occupiedPositions.indexOf(initialPosition);
-  console.log(index);
+  console.log("Index : " + index);
   occupiedPositions[index] = finalPosition;
+  console.log("Look here Idot");
+  console.log(occupiedPositions);
   if (shouldHistoryBeCleared && !fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
     shouldHistoryBeCleared = false;
     numberOfReplaySteps = 0;
+    moveBoard.removeChild(moveBoard.lastElementChild);
   }
   if (!fromUndo) {
     shootTheBullet();
@@ -952,7 +959,6 @@ function shootTheBullet() {
   let interval = setInterval(() => {
     if (!bulletPath.length) {
       clearInterval(interval);
-      //removeThe Bullet
       nodeList[finalBulletPosition].removeChild(bullet);
       once = true;
       oncesRech = true;
@@ -960,8 +966,6 @@ function shootTheBullet() {
     }
     if (bulletPath[0] == -1) {
       gameOver(whichPlayerTurn);
-      // alert("game is over");
-      // localStorage.setItem("")
       clearInterval(interval);
       nodeList[finalBulletPosition - 1].removeChild(bullet);
     }
@@ -1119,18 +1123,13 @@ function swappingAction(gridElement, fromUndo) {
   let swappingRechPiece = document.getElementById(swappingRechId.toString());
   let exPosition1 = pieceState[swappingRech]["position"];
   let exPosition2 = parseInt(gridElement.id);
-  console.log("For the 1st Time");
-  console.log(pieceState);;
-  // const swappingRechPiece = document.getElementById(swappingRechId);
   removeThePiece(exPosition1, swappingRechPiece);
+  let index2 = occupiedPositions.indexOf(exPosition1)
+  occupiedPositions.splice(index2,1);
   moveThePiece(exPosition2, exPosition1, selectedPieceForSwap, true);
   placeThePiece(exPosition2, swappingRechPiece, swappingRech);
   shootTheBullet();
   occupiedPositions.push(exPosition2);
-  
-  console.log("for the 1st Time ");
-  console.log(pieceState);
-  // updateHistory(piece, null, initialPosition, finalPosition);
   if (!fromUndo) {
     let moveObject = {};
     moveObject.action = "swap";
