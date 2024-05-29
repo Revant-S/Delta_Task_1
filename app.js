@@ -397,8 +397,7 @@ function respondToTheButton(button) {
   shootTheBullet();
   switchTheTurn();
   removeTheHighlight();
-  removeTheButtons();
-  
+  removeTheButtons();  
 }
 
 const titan = [redTitan, blueTitan];
@@ -750,6 +749,12 @@ function removeThePiece(position, pieceDomElement) {
 
 
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
+  if (shouldHistoryBeCleared && !fromUndo) {
+    removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
+    shouldHistoryBeCleared = false;
+    numberOfReplaySteps = 0;
+    moveBoard.removeChild(moveBoard.lastElementChild);
+  }
 
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
@@ -757,12 +762,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   hasUndone = false;
   const index = occupiedPositions.indexOf(initialPosition);
   occupiedPositions[index] = finalPosition;
-  if (shouldHistoryBeCleared && !fromUndo) {
-    removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
-    shouldHistoryBeCleared = false;
-    numberOfReplaySteps = 0;
-    moveBoard.removeChild(moveBoard.lastElementChild);
-  }
+
   if (!fromUndo) {
     shootTheBullet();
     updateHistory(piece, null, initialPosition, finalPosition);
@@ -1014,7 +1014,17 @@ function undo() {
     const positions = movesHistory[index];
     rotation = positions.finalOrientation;
     let piece = positions.piece;
-    if (!rotation) {
+    if (positions.action == "swap") {
+      let swappingPieceOneInfo = positions.swappingPieceOneInfo;
+      let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
+      removeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement);
+      removeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement);
+
+      placeThePiece(swappingPieceOneInfo.initialPosition,swappingPieceOneInfo.swappingRechDomElement , swappingPieceOneInfo.swappingRech);
+      placeThePiece(swappingPieceTwoInfo.initialPosition,swappingPieceTwoInfo.selectedPieceDomElement , swappingPieceTwoInfo.swappingPiece);
+      numberOfReplaySteps++;
+    }
+    else if (!rotation) {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       numberOfReplaySteps++;
@@ -1028,6 +1038,7 @@ function undo() {
     updateMovesBoard(false);
   } catch (e) {
     alert("No further Undos !!!");
+    console.log(e);
   }
 }
 
@@ -1095,6 +1106,7 @@ function swappingAction(gridElement, fromUndo) {
   removeThePiece(exPosition1, swappingRechPiece);
   let index2 = occupiedPositions.indexOf(exPosition1)
   occupiedPositions.splice(index2,1);
+  occupiedPositions.push(exPosition2);
   moveThePiece(exPosition2, exPosition1, selectedPieceForSwap, true);
   placeThePiece(exPosition2, swappingRechPiece, swappingRech);
   shootTheBullet();
@@ -1104,10 +1116,12 @@ function swappingAction(gridElement, fromUndo) {
     moveObject.swappingPieceOneInfo = {
       swappingRech: swappingRech,
       initialPosition: exPosition1,
+      swappingRechDomElement : swappingRechPiece
     };
     moveObject.swappingPieceTwoInfo = {
       swappingPiece: selectedPieceForSwap,
       initialPosition: exPosition2,
+      selectedPieceDomElement : pieceState[selectedPieceForSwap]["domElement"]
     };
     moveObject.moveNumber = moveNumber;
     movesHistory.push(moveObject);
@@ -1118,3 +1132,4 @@ function swappingAction(gridElement, fromUndo) {
   }
   removeTheHighlight();
 }
+
