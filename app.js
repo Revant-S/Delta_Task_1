@@ -296,13 +296,20 @@ function validatePlayer() {
   return true;
 }
 function updateMovesBoard(add) {
-  console.log(movesHistory);
   if (add) {
+    let addedclassOpposite = "redback"
+    let addedClass = "blueback"
+    let whichPlayerTurnOpposite = "blue"
     const div = document.createElement("div");
     if (whichPlayerTurn == "red") {
       div.classList.add("redback");
+      addedClass = "redback"
+      addedclassOpposite = "blueback"
     } else {
       div.classList.add("blueback");
+      addedClass = "blueback"
+      addedclassOpposite = "redback"
+      whichPlayerTurnOpposite = "red"
     }
     let len = movesHistory.length;
     const move = movesHistory[len - 1];
@@ -319,8 +326,25 @@ function updateMovesBoard(add) {
     }
     div.id = move.moveNumber;
     div.classList.add("moveBoardElement");
-    let piece = move.piece;
-    if (move.finalOrientation == move.initialOrientation) {
+    let piece = move.piece; 
+    if (move.destroyedSrech) {
+      const reqObject = move;
+      let requiredString
+      let positionWhereDestroyed = reqObject.positionWhereDestroyed;
+      let domelementId = reqObject.destroyedDomElement.id;
+      if (domelementId == "sRechr") {
+        requiredString = `The Red Semi Rechociate was destroyed on the position ${positionWhereDestroyed} by the ${whichPlayerTurnOpposite} canon`;
+        div.classList.remove(addedClass)
+        div.classList.add(addedclassOpposite)
+      }else{
+        requiredString = `The Blue Semi Rechociate was destroyed on the position ${positionWhereDestroyed} by the ${whichPlayerTurnOpposite} canon`;
+        div.classList.remove(addedClass)
+        div.classList.add(addedclassOpposite)
+      }
+      div.innerText = requiredString;
+      moveBoard.appendChild(div);
+    }
+    else if (!move.finalOrientation  ) {
       const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`;
       div.innerText = reqString;
       moveBoard.appendChild(div);
@@ -329,6 +353,8 @@ function updateMovesBoard(add) {
       div.innerText = reqString;
       moveBoard.appendChild(div);
     }
+    
+    console.log(movesHistory);
   } else {
     const childList = moveBoard.children;
     for (let index = 0; index < childList.length; index++) {
@@ -848,6 +874,15 @@ function destroyThesRech(piece) {
   pieceState[piece]["destroyed"] = true;
   bulletPath = [];
   bulletDirectionArray = [];
+  let destroyedsRechObject = {
+    destroyedSrech : true,
+    positionWhereDestroyed : srechPosition,
+    destroyedDomElement : srechDomElement,
+    onMoveNumber : moveNumber-1
+  }
+  movesHistory.push(destroyedsRechObject)
+  updateMovesBoard(true)
+  console.log(movesHistory);
 }
 
 function initialDirectionOfTheBullet() {
@@ -859,12 +894,6 @@ function initialDirectionOfTheBullet() {
   }
   console.log("reaching");
 }
-
-
-
-
-
-
 function detectPiece(position) {
   let returnObject = { canContinue: true, increment: 0, game: true };
   const piece = nodeList[position].firstChild;

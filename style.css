@@ -86,9 +86,10 @@ body {
 }
 #movesBoard{
    height: 100%;
-   display: grid;
-   grid-template-columns: repeat(2, 1fr); 
-   gap: 10px; 
+   display: flex;
+   flex-direction: column;
+   /* grid-template-columns: repeat(2, 1fr);  */
+   /* gap: 10px;  */
    overflow: hidden;
    backdrop-filter: blur(5px);
 }
@@ -96,11 +97,12 @@ body {
     padding: 1%;
     text-align: left;
     border: 2px black solid;
-    width: 100%;
+    width: 90%;
     /* max-height: 2%; */
     height: auto;
     margin: 2%;
     backdrop-filter: blur(10px);
+    text-align: center;
     
     
 }
