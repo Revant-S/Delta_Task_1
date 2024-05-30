@@ -4,38 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Rechociate Rumble</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <header>
+        <h1>Rechociate Rumble</h1>
+    </header>
 
-    <div class="name">Rechociate Rumble</div>
-    <div class="masterContainer">
-        <div class="subContainer">
-            <div class="container">
-                <div class="turn">
-                    <div class="turnName">Red</div>
-                    <div class="options"></div>
-                </div>
+    <div class="master">
+        <div class="board"></div>
 
-                <div class="boardContainer">
-
-                    <div><button id="pauseButton">Pause</button></div>
-                    <div class="board"></div>
-                    <div class="adjust">
-                        <div class="red-timer timer">Player Red <span id="red-timer"> 05:00</span></div>
-                        <div ><button id="undoButton">undo</button></div>
-                        <div ><button id="redoButton">redo</button></div>
-                        <div class="blue-timer timer">Player Blue <span id="blue-timer"> 05:00</span></div>
-                    </div>
-                </div>
+        <div class="movesBoard">
+            <div class="top">
+                <div class="playerRed">Player Red:-  <span id="red-timer">05:00</span></div>
+                <div class="turn" id="turnName">Turn: Red</div>
+                <div class="playerBlue">Player Blue:-  <span id="blue-timer">05:00</span></div>
             </div>
-            <div class="moves">
-                <div class="board" id = "movesBoard"></div>
+            <div id="middle">
+                <!-- Moves will be dynamically added here -->
+            </div>
+            <div class = "middle" id="buttonSpace"></div>
+            <div class="bottom">
+                <button class="btn" id="initialSetup">initialSetup</button>
+                <button class="btn" id="undoButton">Undo</button>
+                <button class="btn" id="pauseButton">Pause</button>
+                <button class="btn" id="redoButton">Redo</button>
+                <button class="btn" id="FinalSetup">FinalSetup</button>
             </div>
         </div>
     </div>
+
+    <footer>
+        <a href="https://github.com/yourprofile" target="_blank">
+            <svg> <!-- GitHub SVG icon here --> </svg>
+        </a>
+    </footer>
+
     <script type="module" src="app.js"></script>
 </body>
 

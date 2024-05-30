@@ -32,7 +32,7 @@ console.log(window.innerHeight);
 console.log(window);
 
 
-const moveBoard = document.getElementById("movesBoard");
+const moveBoard = document.getElementById("middle");
 const bulletUp = document.createElement("div");
 const bulletDown = document.createElement("div");
 const bulletLeft = document.createElement("div");
@@ -47,13 +47,13 @@ let undoButton = document.getElementById("undoButton");
 let redoButton = document.getElementById("redoButton");
 let resetButton = document.createElement("button");
 const movesContainer = document.querySelector(".moves");
-const turnName = document.querySelector(".turnName");
-const buttonSpace = document.querySelector(".options");
+const turnName = document.querySelector("#turnName");
+const buttonSpace = document.querySelector("#buttonSpace");
 const pauseplaybuttonSpace = document.createElement("div");
 const pauseButton = document.getElementById("pauseButton");
 const swapButton = document.createElement("button");
 swapButton.innerText = "Swap";
-swapButton.classList.add("resButton");
+swapButton.classList.add("btn");
 function generateTheBoard() {
   for (let index = 0; index < 64; index++) {
     const gridElement = document.createElement("div");
@@ -151,12 +151,12 @@ downLeft.id = "downLeft";
 downRight.id = "downRight";
 rotateLeft.id = "left";
 rotateRight.id = "right";
-upLeft.classList.add("resButton");
-upRight.classList.add("resButton");
-downLeft.classList.add("resButton");
-downRight.classList.add("resButton");
-rotateLeft.classList.add("resButton");
-rotateRight.classList.add("resButton");
+upLeft.classList.add("btn");
+upRight.classList.add("btn");
+downLeft.classList.add("btn");
+downRight.classList.add("btn");
+rotateLeft.classList.add("btn");
+rotateRight.classList.add("btn");
 swapButton.id = "swap";
 
 const sRechButtonsArray = [upLeft, upRight, downLeft, downRight];

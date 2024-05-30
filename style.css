@@ -1,51 +1,145 @@
-body {
-    background: url('background.jpg') no-repeat center center fixed;
-    background-color: rgb(168, 164, 164);
-    font-family: Arial, sans-serif;
+/* Reset some basic styles */
+* {
     margin: 0;
     padding: 0;
-    width: 100%;
+    box-sizing: border-box;
 }
 
-.name {
-    text-align: center;
-    font-size: 2rem; 
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    margin: 20px 0;
-    width: 100%;
-}
-
-.masterContainer {
-    display: flex;
-    justify-content: space-between;
-    height: auto;
-    /* width: 100%; */
-    /* margin-right: 4px; */
-}
-
-.container {
+body {
+    font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    min-height: 100vh;
+    background-color: #121212; /* Dark background for the body */
+    color: #e0e0e0; /* Light text color */
 }
-.subContainer{
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #1f1f1f; /* Dark background for header */
+    color: #e0e0e0; /* Light text color for header */
+}
+
+.gridElement {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.grey {
+    background-color: #3e3e3e; /* Dark grey for grid */
+    opacity: 1;
+}
+
+.white {
+    background-color: #cfcfcf; /* Light grey for grid */
+    opacity: 1;
+}
+
+.master {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: space-around;
+    padding: 20px;
+    width: 100%;
+}
+
+.board, .movesBoard {
+    width: 100%;
+    max-width: 600px;
+    margin: 10px 0;
+}
+
+.board {
+    background-color: #1f1f1f; 
+    height: 600px;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.movesBoard {
+    display: flex;
+    flex-direction: column;
+    height: 600px; 
+    background-color: #1f1f1f; 
+}
+
+.top, #middle, .bottom {
+    display: flex;
+    padding: 10px;
+}
+
+.top {
     justify-content: space-between;
+}
+
+.playerRed, .playerBlue, .turn {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+    background-color: #2c2c2c; 
+    color: #e0e0e0;
 }
 
 .turn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 80px;
-    min-width: 80px;
-    background-color: aliceblue;
-    border: 4px solid black;
-    margin-bottom: 20px;
-    padding: 10px;
+    flex: 2; 
 }
+
+#middle {
+    flex-grow: 1;
+    overflow-y: auto;
+    flex-direction: column;
+    background-color: #2c2c2c; 
+    border: 1px solid #444; 
+    padding: 10px;
+    margin: 10px 0;
+    color: #e0e0e0;
+}
+
+.bottom {
+    justify-content: space-between;
+}
+
+.btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 20px 10px; 
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn svg {
+    width: 100%;
+    height: auto;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #1f1f1f;
+    color: #e0e0e0; 
+}
+
+footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+footer a svg {
+    width: 24px;
+    height: 24px;
+}
+
+
+
+/* No Change */
 
 .options {
     margin-top: 10px;
@@ -53,10 +147,7 @@ body {
     gap: 10px;
 }
 
-.boardContainer {
-    display: flex;
-    align-items: stretch;
-}
+
 
 .resButton {
     background-color: aqua;
@@ -65,33 +156,6 @@ body {
     border-radius: 2px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-#pauseButton, .actionButton {
-    background-color: brown;
-    font-size: large;
-    padding: 10px 20px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 5%;
-}
-/* .moves{
-    overflow: scroll;
-} */
-#pauseButton:hover, .actionButton:hover {
-    background-color: darkred;
-}
-#movesBoard{
-   height: 100%;
-   display: flex;
-   flex-direction: column;
-   /* grid-template-columns: repeat(2, 1fr);  */
-   /* gap: 10px;  */
-   overflow: hidden;
-   backdrop-filter: blur(5px);
 }
 .moveBoardElement{
     padding: 1%;
@@ -103,8 +167,6 @@ body {
     margin: 2%;
     backdrop-filter: blur(10px);
     text-align: center;
-    
-    
 }
 .redback{
     color: red;
@@ -115,45 +177,12 @@ body {
     color: rgb(158, 158, 255);
     /* background-color:rgb(248, 211, 211) ; */
     backdrop-filter: blur(10px);
-
-}
-
-
-
-
-.board {
-    height: 70vh;
-    width: 70vh;
-    display: grid;
-    grid-template-rows: repeat(8, 1fr);
-    grid-template-columns: repeat(8, 1fr);
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    overflow: hidden;
-
 }
 .gameOverBoard{
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.gridElement {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.grey {
-    background-color: rgb(14, 90, 14);
-    opacity: 1;
-}
-
-.white {
-    background-color: rgb(162, 190, 162);
-    opacity: 1;
-}
-
 .playerRed, .playerBlue, .highlight {
     display: flex;
     justify-content: center;
@@ -164,11 +193,7 @@ body {
     border: 4px solid red;
     padding: 2px;
 }
-.moves{
-    /* border: 2px black solid; */
-    overflow: scroll;
-    width: 100%;
-}
+
 .playerBlue {
     border: 4px solid blue;
     padding: 2px;
@@ -182,7 +207,15 @@ body {
     0 5px 15px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s;
 }
+.piece {
+    width: 100%;
+    position: relative;
+}
 
+#buttonSpace{
+    display: flex;
+    justify-content: center;
+}
 .bullet {
     width: 20px;
     height: 20px;
@@ -191,37 +224,81 @@ body {
     align-self: center;
 }
 
-.piece {
-    width: 100%;
-    position: relative;
+@media screen and (max-width: 1355px) {
+    #middle {
+        display: none;
+    }
+    .board {
+        background-color: #1f1f1f; 
+        height: 80%;
+        display: grid;
+        grid-template-rows: repeat(8, 1fr);
+        grid-template-columns: repeat(8, 1fr);
+    }
+    
+    .movesBoard{
+        height: auto;
+    }
+    header {
+        text-align: center;
+        padding: 10px;
+        background-color: #1f1f1f;
+        color: #e0e0e0;
+    }
+
+    .master {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .top {
+        display: flex;
+        /* flex-direction: column; */
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .playerRed, .playerBlue {
+        margin-bottom: 10px;
+    }
+
+    .playerRed, .playerBlue, #turnName {
+        width: 100%;
+        text-align: center;
+        padding: 5px;
+        background-color: #2c2c2c;
+        color: #e0e0e0;
+    }
+
+    .boardContainer {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    #buttonSpace {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+        margin: 5px 0;
+        padding: 15px;
+    }
+
+    .gridElement {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
 }
 
-.adjust {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
 
-.timer {
-    background-color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    width: 150px;
-}
-
-.red-timer {
-    border: 2px solid red;
-}
-
-.blue-timer {
-    border: 2px solid blue;
-}
-
-.overlay {
+/* .overlay {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -239,9 +316,9 @@ body {
     margin: 10px auto;
     padding: 10px 20px;
     font-size: 16px;
-}
+} */
 
-@media (max-width: 800px) {
+/* @media (max-width: 800px) {
     .masterContainer {
         flex-direction: column;
         align-items: center;
@@ -382,4 +459,4 @@ body {
         max-width: 120px;
         margin: 0 5px;
     }
-}
+} */
