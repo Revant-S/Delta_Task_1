@@ -55,7 +55,7 @@ function generateTheBoard() {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
-    // gridElement.innerText = index;
+    gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
 
@@ -445,12 +445,12 @@ function rotateThepiece(pieceName, response, fromUndo) {
     }
   }
   if (!fromUndo) {
-    updateHistory(pieceName, initialOrientation, response, null, null);
+    updateHistory(pieceName, initialOrientation, response, null, null,"rotation");
   }
 
-  console.log("After Rotation");
-  console.log(movesHistory);
   pieceState[pieceName]["direction"] = response;
+  removeTheHighlight();
+  removeTheButtons();
 }
 
 function respondToTheButton(button) {
@@ -715,8 +715,6 @@ function makeThePieces() {
   }
 }
 
-
-
 function createTimer(player, displayElement) {
   this.player = player;
   this.totalTime = 300; // 5 minutes in seconds
@@ -773,12 +771,21 @@ function createTimer(player, displayElement) {
   this.updateDisplay();
 }
 
+const redTimerElement = document.getElementById("red-timer");
+const blueTimerElement = document.getElementById("blue-timer");
+
+const playerRedTimer = new createTimer("Red", redTimerElement);
+const playerBlueTimer = new createTimer("Blue", blueTimerElement);
+playerRedTimer.start();
+
+
+
 function updateHistory(
   piece,
   initialOrientation,
   finalOrientation,
   initialPosition,
-  finalPosition
+  finalPosition,action
 ) {
   let moveObject = {};
   moveObject.player = whichPlayerTurn;
@@ -788,6 +795,7 @@ function updateHistory(
   moveObject.initialOrientation = initialOrientation;
   moveObject.finalOrientation = finalOrientation;
   moveObject.moveNumber = movesHistory.length + 1;
+  moveObject.action = action
   movesHistory.push(moveObject);
   updateMovesBoard(true);
 }
@@ -837,7 +845,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
 
   if (!fromUndo) {
     shootTheBullet();
-    updateHistory(piece, null, null, initialPosition, finalPosition);
+    updateHistory(piece, null, null, initialPosition, finalPosition,"movement");
     switchTheTurn();
     moveNumber++;
   }
@@ -866,14 +874,15 @@ function destroyThesRech(piece) {
   bulletPath = [];
   bulletDirectionArray = [];
   let destroyedsRechObject = {
+    action : "destroyed",
     destroyedSrech: true,
     positionWhereDestroyed: srechPosition,
     destroyedDomElement: srechDomElement,
     onMoveNumber: moveNumber - 1,
+    destroyedPiece : piece
   };
   movesHistory.push(destroyedsRechObject);
   updateMovesBoard(true);
-  console.log(movesHistory);
 }
 
 function initialDirectionOfTheBullet() {
@@ -1220,12 +1229,20 @@ function undo() {
         swappingPieceTwoInfo.swappingPiece
       );
       numberOfReplaySteps++;
-    } else if (!rotation) {
+    } else if (positions.action == "movement") {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       numberOfReplaySteps++;
       moveThePiece(finalPosition, initialPosition, piece, true);
-    } else {
+    } else if (positions.destroyedSrech) {
+      let position = positions.positionWhereDestroyed;
+      let domElementRequired = positions.destroyedDomElement;
+      let reqPiece = positions.destroyedPiece;
+      placeThePiece(position,domElementRequired , reqPiece);
+      occupiedPositions.push(position);
+      positions.destroyedSrech = false;
+      numberOfReplaySteps++;
+    } else if(positions.action == "rotation") {
       console.log("During UnDo");
       console.log(index);
       console.log(movesHistory);
@@ -1248,6 +1265,7 @@ function redo() {
     let index = movesHistory.length - 1 - numberOfReplaySteps;
     let rotation = null;
     const positions = movesHistory[index];
+    console.log(positions);
     rotation = positions.finalOrientation;
     let piece = positions.piece;
     if (positions.action == "swap") {
@@ -1272,14 +1290,24 @@ function redo() {
         swappingPieceTwoInfo.selectedPieceDomElement,
         swappingPieceTwoInfo.swappingPiece
       );
-    } else if (!rotation) {
+      
+    } else if (positions.action == "movement") {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       moveThePiece(initialPosition, finalPosition, piece, true);
-    } else {
-      console.log("During Redo");
-      console.log(index);
-      console.log(movesHistory);
+    }else if (positions.action == "destroyed") {
+      console.log("Here Mother Fucker");
+      console.log(positions);
+      let positionWhereDestroyed = positions.positionWhereDestroyed;
+      let index4 = occupiedPositions.indexOf(positionWhereDestroyed)
+      occupiedPositions.splice(index4,2);
+
+      let domElementRequired = positions.destroyedDomElement;
+      removeThePiece(positionWhereDestroyed,domElementRequired);
+      positions.destroyedSrech = true;
+      numberOfReplaySteps--;
+    }
+     else {
       rotateThepiece(piece, rotation, true);
     }
     hasUndone = true;
@@ -1358,14 +1386,8 @@ function swappingAction(gridElement, fromUndo) {
   removeTheHighlight();
 }
 
-function startTheGame() {
-  const redTimerElement = document.getElementById("red-timer");
-  const blueTimerElement = document.getElementById("blue-timer");
 
-  const playerRedTimer = new createTimer("Red", redTimerElement);
-  const playerBlueTimer = new createTimer("Blue", blueTimerElement);
-  playerRedTimer.start();
-}
+
 
 makeThePieces();
-startTheGame();
+
