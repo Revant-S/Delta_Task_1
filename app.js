@@ -297,19 +297,19 @@ function validatePlayer() {
 }
 function updateMovesBoard(add) {
   if (add) {
-    let addedclassOpposite = "redback"
-    let addedClass = "blueback"
-    let whichPlayerTurnOpposite = "blue"
+    let addedclassOpposite = "redback";
+    let addedClass = "blueback";
+    let whichPlayerTurnOpposite = "blue";
     const div = document.createElement("div");
     if (whichPlayerTurn == "red") {
       div.classList.add("redback");
-      addedClass = "redback"
-      addedclassOpposite = "blueback"
+      addedClass = "redback";
+      addedclassOpposite = "blueback";
     } else {
       div.classList.add("blueback");
-      addedClass = "blueback"
-      addedclassOpposite = "redback"
-      whichPlayerTurnOpposite = "red"
+      addedClass = "blueback";
+      addedclassOpposite = "redback";
+      whichPlayerTurnOpposite = "red";
     }
     let len = movesHistory.length;
     const move = movesHistory[len - 1];
@@ -326,25 +326,24 @@ function updateMovesBoard(add) {
     }
     div.id = move.moveNumber;
     div.classList.add("moveBoardElement");
-    let piece = move.piece; 
+    let piece = move.piece;
     if (move.destroyedSrech) {
       const reqObject = move;
-      let requiredString
+      let requiredString;
       let positionWhereDestroyed = reqObject.positionWhereDestroyed;
       let domelementId = reqObject.destroyedDomElement.id;
       if (domelementId == "sRechr") {
         requiredString = `The Red Semi Rechociate was destroyed on the position ${positionWhereDestroyed} by the ${whichPlayerTurnOpposite} canon`;
-        div.classList.remove(addedClass)
-        div.classList.add(addedclassOpposite)
-      }else{
+        div.classList.remove(addedClass);
+        div.classList.add(addedclassOpposite);
+      } else {
         requiredString = `The Blue Semi Rechociate was destroyed on the position ${positionWhereDestroyed} by the ${whichPlayerTurnOpposite} canon`;
-        div.classList.remove(addedClass)
-        div.classList.add(addedclassOpposite)
+        div.classList.remove(addedClass);
+        div.classList.add(addedclassOpposite);
       }
       div.innerText = requiredString;
       moveBoard.appendChild(div);
-    }
-    else if (!move.finalOrientation  ) {
+    } else if (!move.finalOrientation) {
       const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`;
       div.innerText = reqString;
       moveBoard.appendChild(div);
@@ -353,7 +352,7 @@ function updateMovesBoard(add) {
       div.innerText = reqString;
       moveBoard.appendChild(div);
     }
-    
+
     console.log(movesHistory);
   } else {
     const childList = moveBoard.children;
@@ -716,7 +715,7 @@ function makeThePieces() {
   }
 }
 
-makeThePieces();
+
 
 function createTimer(player, displayElement) {
   this.player = player;
@@ -773,14 +772,6 @@ function createTimer(player, displayElement) {
   // Initialize the display
   this.updateDisplay();
 }
-
-// Get the DOM elements by their IDs
-const redTimerElement = document.getElementById("red-timer");
-const blueTimerElement = document.getElementById("blue-timer");
-
-const playerRedTimer = new createTimer("Red", redTimerElement);
-const playerBlueTimer = new createTimer("Blue", blueTimerElement);
-playerRedTimer.start();
 
 function updateHistory(
   piece,
@@ -870,18 +861,18 @@ function destroyThesRech(piece) {
   occupiedPositions.splice(index3, 1);
   console.log(occupiedPositions);
   const explosionAudio = new Audio("explosion.mp3");
-  explosionAudio.play()
+  explosionAudio.play();
   pieceState[piece]["destroyed"] = true;
   bulletPath = [];
   bulletDirectionArray = [];
   let destroyedsRechObject = {
-    destroyedSrech : true,
-    positionWhereDestroyed : srechPosition,
-    destroyedDomElement : srechDomElement,
-    onMoveNumber : moveNumber-1
-  }
-  movesHistory.push(destroyedsRechObject)
-  updateMovesBoard(true)
+    destroyedSrech: true,
+    positionWhereDestroyed: srechPosition,
+    destroyedDomElement: srechDomElement,
+    onMoveNumber: moveNumber - 1,
+  };
+  movesHistory.push(destroyedsRechObject);
+  updateMovesBoard(true);
   console.log(movesHistory);
 }
 
@@ -1060,7 +1051,10 @@ function calculateThePath() {
       console.log("forward Object");
       console.log(forwardObject);
       if (!forwardObject.canContinue) {
-        if (forwardObject.destroyedsRech && forwardObject.destroyedsRech.isDestroyed) {
+        if (
+          forwardObject.destroyedsRech &&
+          forwardObject.destroyedsRech.isDestroyed
+        ) {
           if (forwardObject.destroyedsRech.whichsRech == "redsRech") {
             bulletPath.push(-2);
           } else {
@@ -1085,57 +1079,56 @@ function shootTheBullet() {
   calculateThePath();
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
- 
-      if (!bulletPath.length) {
-        clearInterval(interval);
-        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
-        once = true;
-        oncesRech = true;
-        return;
-      }
-      if (bulletPath[0] == -1) {
-        gameOver(whichPlayerTurn);
-        clearInterval(interval);
-        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
-        bulletPath = [];
-        return
-      }
-      if (bulletPath[0] == -2) {
-        destroyThesRech("redsRech");
-        clearInterval(interval);
-        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+    if (!bulletPath.length) {
+      clearInterval(interval);
+      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+      once = true;
+      oncesRech = true;
+      return;
+    }
+    if (bulletPath[0] == -1) {
+      gameOver(whichPlayerTurn);
+      clearInterval(interval);
+      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+      bulletPath = [];
+      return;
+    }
+    if (bulletPath[0] == -2) {
+      destroyThesRech("redsRech");
+      clearInterval(interval);
+      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
 
-        return
-      }
-      if (bulletPath[0] == -3) {
-        destroyThesRech("bluesRech");
-        clearInterval(interval);
-        nodeList[finalBulletPosition].removeChild(bulletImageInUse);
-        return;
-      }
-      console.log("yes IT is Reching here");
-      let bulletDirectionForcomp = bulletDirectionArray[0];
-      if (bulletDirectionForcomp == "up") {
-        nodeList[bulletPath[0]].appendChild(bulletUp);
-        bulletImageInUse = bulletUp;
-      } else if (bulletDirectionForcomp == "left") {
-        nodeList[bulletPath[0]].appendChild(bulletLeft);
-        bulletImageInUse = bulletLeft;
-      } else if (bulletDirectionForcomp == "down") {
-        nodeList[bulletPath[0]].appendChild(bulletDown);
-        bulletImageInUse = bulletDown;
-      } else if (bulletDirectionForcomp == "right") {
-        nodeList[bulletPath[0]].appendChild(bulletRight);
-        bulletImageInUse = bulletRight;
-      }
-     try {
+      return;
+    }
+    if (bulletPath[0] == -3) {
+      destroyThesRech("bluesRech");
+      clearInterval(interval);
+      nodeList[finalBulletPosition].removeChild(bulletImageInUse);
+      return;
+    }
+    console.log("yes IT is Reching here");
+    let bulletDirectionForcomp = bulletDirectionArray[0];
+    if (bulletDirectionForcomp == "up") {
+      nodeList[bulletPath[0]].appendChild(bulletUp);
+      bulletImageInUse = bulletUp;
+    } else if (bulletDirectionForcomp == "left") {
+      nodeList[bulletPath[0]].appendChild(bulletLeft);
+      bulletImageInUse = bulletLeft;
+    } else if (bulletDirectionForcomp == "down") {
+      nodeList[bulletPath[0]].appendChild(bulletDown);
+      bulletImageInUse = bulletDown;
+    } else if (bulletDirectionForcomp == "right") {
+      nodeList[bulletPath[0]].appendChild(bulletRight);
+      bulletImageInUse = bulletRight;
+    }
+    try {
       if (nodeList[bulletPath[0]].classList.contains("piece")) {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
         console.log(nodeList[0].children);
       }
-     } catch (error) {
+    } catch (error) {
       console.log(error);
-     }
+    }
     bulletDirectionArray.shift();
     bulletPath.shift();
   }, 100);
@@ -1364,3 +1357,15 @@ function swappingAction(gridElement, fromUndo) {
   }
   removeTheHighlight();
 }
+
+function startTheGame() {
+  const redTimerElement = document.getElementById("red-timer");
+  const blueTimerElement = document.getElementById("blue-timer");
+
+  const playerRedTimer = new createTimer("Red", redTimerElement);
+  const playerBlueTimer = new createTimer("Blue", blueTimerElement);
+  playerRedTimer.start();
+}
+
+makeThePieces();
+startTheGame();
