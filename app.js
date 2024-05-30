@@ -37,7 +37,8 @@ const bulletUp = document.createElement("div");
 const bulletDown = document.createElement("div");
 const bulletLeft = document.createElement("div");
 const bulletRight = document.createElement("div");
-
+const initialSetupButton = document.querySelector("#initialSetup");
+const FinalSetupButton = document.querySelector("#FinalSetup");
 let gameNumber = localStorage.getItem("gameNumber");
 if (!gameNumber) {
   gameNumber = 0;
@@ -197,9 +198,54 @@ function makeTheBulletDivs() {
   imageLeft.style.width = "100%";
   imageLeft.style.height = "100%";
   imageLeft.style.objectFit = "contain";
-  imageLeft.style.transform = "rotate(270deg)"; // Corrected this line
+  imageLeft.style.transform = "rotate(270deg)";
   bulletLeft.appendChild(imageLeft);
 }
+function makeThefunctionalityButtons() {
+  const image = document.createElement("img");
+  image.src = "backArrow.svg"
+  image.style.height = "100%";
+  image.style.width = "100%";
+  image.style.objectFit = "contain"
+  undoButton.appendChild(image);
+  const image2 = document.createElement("img");
+  image2.src = "forwardArrow.svg"
+  image2.style.height = "100%";
+  image2.style.width = "100%";
+  image2.style.objectFit = "contain"
+  redoButton.appendChild(image2);
+  const image3 = document.createElement("img");
+  image3.src = "pauseButton.svg"
+  image3.style.height = "100%";
+  image3.style.width = "100%";
+  image3.style.objectFit = "contain"
+  pauseButton.appendChild(image3);
+  const image4 = document.createElement("img");
+  image4.src = "initialSetup.svg"
+  image4.style.height = "100%";
+  image4.style.width = "100%";
+  image4.style.objectFit = "contain"
+  initialSetupButton.appendChild(image4);
+  const image5 = document.createElement("img");
+  image5.src = "finalSetup.svg"
+  image5.style.height = "100%";
+  image5.style.width = "100%";
+  image5.style.objectFit = "contain"
+  FinalSetupButton.appendChild(image5);
+}
+makeThefunctionalityButtons()
+
+
+
+
+
+
+
+
+
+
+
+
 
 makeTheBulletDivs();
 
