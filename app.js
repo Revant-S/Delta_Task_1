@@ -28,9 +28,6 @@ let swappingPiece = null;
 let tankWeakningConfig = true;
 let bulletImageInUse = null;
 
-console.log(window.innerHeight);
-console.log(window);
-
 
 const moveBoard = document.getElementById("middle");
 const bulletUp = document.createElement("div");
@@ -203,49 +200,37 @@ function makeTheBulletDivs() {
 }
 function makeThefunctionalityButtons() {
   const image = document.createElement("img");
-  image.src = "backArrow.svg"
+  image.src = "backArrow.svg";
   image.style.height = "100%";
   image.style.width = "100%";
-  image.style.objectFit = "contain"
+  image.style.objectFit = "contain";
   undoButton.appendChild(image);
   const image2 = document.createElement("img");
-  image2.src = "forwardArrow.svg"
+  image2.src = "forwardArrow.svg";
   image2.style.height = "100%";
   image2.style.width = "100%";
-  image2.style.objectFit = "contain"
+  image2.style.objectFit = "contain";
   redoButton.appendChild(image2);
   const image3 = document.createElement("img");
-  image3.src = "pauseButton.svg"
+  image3.src = "pauseButton.svg";
   image3.style.height = "100%";
   image3.style.width = "100%";
-  image3.style.objectFit = "contain"
+  image3.style.objectFit = "contain";
   pauseButton.appendChild(image3);
   const image4 = document.createElement("img");
-  image4.src = "initialSetup.svg"
+  image4.src = "initialSetup.svg";
   image4.style.height = "100%";
   image4.style.width = "100%";
-  image4.style.objectFit = "contain"
+  image4.style.objectFit = "contain";
   initialSetupButton.appendChild(image4);
   const image5 = document.createElement("img");
-  image5.src = "finalSetup.svg"
+  image5.src = "finalSetup.svg";
   image5.style.height = "100%";
   image5.style.width = "100%";
-  image5.style.objectFit = "contain"
+  image5.style.objectFit = "contain";
   FinalSetupButton.appendChild(image5);
 }
-makeThefunctionalityButtons()
-
-
-
-
-
-
-
-
-
-
-
-
+makeThefunctionalityButtons();
 
 makeTheBulletDivs();
 
@@ -372,7 +357,7 @@ function updateMovesBoard(add) {
       div.innerText = requiredString;
       div.id = move.moveNumber;
       moveBoard.appendChild(div);
-      movesHistory[len-1].sentence = requiredString;
+      movesHistory[len - 1].sentence = requiredString;
       return;
     }
     div.id = move.moveNumber;
@@ -393,39 +378,35 @@ function updateMovesBoard(add) {
         div.classList.add(addedclassOpposite);
       }
       div.innerText = requiredString;
-      movesHistory[len-1].sentence = requiredString;
+      movesHistory[len - 1].sentence = requiredString;
       moveBoard.appendChild(div);
     } else if (!move.finalOrientation) {
       const reqString = `Player ${whichPlayerTurn} moved the ${piece} from ${move.initialPosition} to ${move.finalPosition}`;
       div.innerText = reqString;
       moveBoard.appendChild(div);
-      movesHistory[len-1].sentence = reqString;
+      movesHistory[len - 1].sentence = reqString;
     } else {
       const reqString = `player ${whichPlayerTurn} rotated the ${piece}  to ${move.finalOrientation}`;
       div.innerText = reqString;
       moveBoard.appendChild(div);
-      movesHistory[len-1].sentence = reqString;
+      movesHistory[len - 1].sentence = reqString;
     }
-
   } else {
-
     // console.log(movesHistory);
     moveBoard.innerHTML = "";
     console.log("After Undo Or ReDo");
     console.log(movesHistory);
     for (let index = 0; index < movesHistory.length; index++) {
       const element = movesHistory[index];
-      console.log("LOOK HERE FOOL");
-      console.log(element);
-      const divToAdd=  document.createElement("div");
-      let classToAdd = "blueback"
+      const divToAdd = document.createElement("div");
+      let classToAdd = "blueback";
       if (element.player == "red") {
-        classToAdd = "redback"
+        classToAdd = "redback";
       }
       divToAdd.classList.add(classToAdd);
       divToAdd.innerText = element.sentence;
-      divToAdd.classList.add("moveBoardElement")
-      moveBoard.appendChild(divToAdd)
+      divToAdd.classList.add("moveBoardElement");
+      moveBoard.appendChild(divToAdd);
     }
   }
 }
@@ -469,8 +450,7 @@ function rotateThepiece(pieceName, response, fromUndo) {
     shouldHistoryBeCleared = false;
     numberOfReplaySteps = 0;
     moveBoard.removeChild(moveBoard.lastElementChild);
-    updateMovesBoard(false)
-
+    updateMovesBoard(false);
   }
   if (!fromUndo) {
     moveNumber++;
@@ -480,18 +460,30 @@ function rotateThepiece(pieceName, response, fromUndo) {
   if (pieceName === "redrech") {
     const rechElement = document.getElementById("redrechImage");
     if (response == "right") {
+
+      rechElement.classList.add("commonRotation");
+      rechElement.classList.add("animateRotateRight");
+      console.log("animation Added");
       rechElement.style.transform = "rotate(0deg)";
     } else if (response == "left") {
+      rechElement.classList.add("commonRotation");
+      rechElement.classList.add("animateRotateLeft");
+      rechElement.style.transform = "rotate(0deg)";
       rechElement.style.transform = "rotate(90deg)";
     }
   } else if (pieceName === "bluerech") {
     const rechElement = document.getElementById("bluerechImage");
     if (response == "right") {
+      rechElement.classList.add("commonRotation");
+      rechElement.classList.add("animateRotateRights");
       rechElement.style.transform = "rotate(0deg)";
     } else if (response == "left") {
+      rechElement.classList.add("commonRotation");
+      rechElement.classList.add("animateRotateLeft");
       rechElement.style.transform = "rotate(90deg)";
     }
   } else if (pieceName == "redsRech") {
+    
     const element = document.getElementById("redsRechImage");
     if (response == "upLeft") {
       element.style.transform = "rotate(270deg)";
@@ -515,7 +507,14 @@ function rotateThepiece(pieceName, response, fromUndo) {
     }
   }
   if (!fromUndo) {
-    updateHistory(pieceName, initialOrientation, response, null, null,"rotation");
+    updateHistory(
+      pieceName,
+      initialOrientation,
+      response,
+      null,
+      null,
+      "rotation"
+    );
   }
 
   pieceState[pieceName]["direction"] = response;
@@ -848,14 +847,13 @@ const playerRedTimer = new createTimer("Red", redTimerElement);
 const playerBlueTimer = new createTimer("Blue", blueTimerElement);
 playerRedTimer.start();
 
-
-
 function updateHistory(
   piece,
   initialOrientation,
   finalOrientation,
   initialPosition,
-  finalPosition,action
+  finalPosition,
+  action
 ) {
   let moveObject = {};
   moveObject.player = whichPlayerTurn;
@@ -865,10 +863,11 @@ function updateHistory(
   moveObject.initialOrientation = initialOrientation;
   moveObject.finalOrientation = finalOrientation;
   moveObject.moveNumber = movesHistory.length + 1;
-  moveObject.action = action
+  moveObject.action = action;
   movesHistory.push(moveObject);
   updateMovesBoard(true);
-} updateMovesBoard(false)
+}
+updateMovesBoard(false);
 
 function switchTheTurn() {
   whichPlayerTurn = whichPlayerTurn === "red" ? "blue" : "red";
@@ -898,6 +897,14 @@ function removeThePiece(position, pieceDomElement) {
   nodeList[position].classList.remove("piece");
 }
 
+
+function clearTheRotationAnimation(piece) {
+  let domelement  = pieceState[piece]["domElement"];
+  let image = domelement.firstChild;
+  image.classList.remove("commonRotation");
+  console.log("animations Removed");
+}
+
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
   if (shouldHistoryBeCleared && !fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
@@ -905,6 +912,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     numberOfReplaySteps = 0;
     moveBoard.removeChild(moveBoard.lastElementChild);
   }
+  // clearTheRotationAnimation(piece);
   console.log("HISTORY WHILE CLEARING !!!!!!!");
   console.log(movesHistory);
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
@@ -916,10 +924,17 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
 
   if (!fromUndo) {
     shootTheBullet();
-    updateHistory(piece, null, null, initialPosition, finalPosition,"movement");
+    updateHistory(
+      piece,
+      null,
+      null,
+      initialPosition,
+      finalPosition,
+      "movement"
+    );
     switchTheTurn();
     moveNumber++;
-    updateMovesBoard(false)
+    updateMovesBoard(false);
   }
 }
 
@@ -949,14 +964,17 @@ function destroyThesRech(piece) {
   if (whichPlayerTurn == "red") {
     playerDes = "blue";
   }
+  console.log("SEE HERE !!!!!!!!!!");
+  console.log(movesHistory);
   let destroyedsRechObject = {
-    player : playerDes,
-    action : "destroyed",
+    piece : "sRech",
+    player: playerDes,
+    action: "destroyed",
     destroyedSrech: true,
     positionWhereDestroyed: srechPosition,
     destroyedDomElement: srechDomElement,
     onMoveNumber: moveNumber - 1,
-    destroyedPiece : piece
+    destroyedPiece: piece,
   };
   movesHistory.push(destroyedsRechObject);
   updateMovesBoard(true);
@@ -1192,18 +1210,25 @@ function shootTheBullet() {
       nodeList[finalBulletPosition].removeChild(bulletImageInUse);
       return;
     }
-    console.log("yes IT is Reching here");
     let bulletDirectionForcomp = bulletDirectionArray[0];
     if (bulletDirectionForcomp == "up") {
+      bulletUp.classList.add("bulletAnimationCommon");
+      bulletUp.classList.add("animationUp");
       nodeList[bulletPath[0]].appendChild(bulletUp);
       bulletImageInUse = bulletUp;
     } else if (bulletDirectionForcomp == "left") {
+      bulletLeft.classList.add("bulletAnimationCommon");
+      bulletLeft.classList.add("animationLeft");
       nodeList[bulletPath[0]].appendChild(bulletLeft);
       bulletImageInUse = bulletLeft;
     } else if (bulletDirectionForcomp == "down") {
+      bulletDown.classList.add("bulletAnimationCommon");
+      bulletDown.classList.add("animationDown");
       nodeList[bulletPath[0]].appendChild(bulletDown);
       bulletImageInUse = bulletDown;
     } else if (bulletDirectionForcomp == "right") {
+      bulletRight.classList.add("bulletAnimationCommon");
+      bulletRight.classList.add("animationRight");
       nodeList[bulletPath[0]].appendChild(bulletRight);
       bulletImageInUse = bulletRight;
     }
@@ -1217,17 +1242,16 @@ function shootTheBullet() {
     }
     bulletDirectionArray.shift();
     bulletPath.shift();
-  }, 100);
+  }, 200);
   const canonAudio = new Audio("Canon.mp3");
   canonAudio.play();
 }
 function createResetResumeDiv() {
   const existingDiv = document.getElementById("resetResumeDiv");
-  if (existingDiv) return; // Prevent creating multiple divs
+  if (existingDiv) return; 
 
   const requiredDiv = document.createElement("div");
   requiredDiv.id = "resetResumeDiv";
-  requiredDiv.classList.add("overlay");
 
   const resumeButton = document.createElement("button");
   const resetButton = document.createElement("button");
@@ -1245,11 +1269,16 @@ function createResetResumeDiv() {
   });
   requiredDiv.appendChild(resumeButton);
   requiredDiv.appendChild(resetButton);
-  document.body.appendChild(requiredDiv);
-  document.body.classList.add("blurred");
+  return requiredDiv;
+  // document.body.appendChild(requiredDiv);
+  // document.body.classList.add("blurred");
 }
-
+const resumeMenu = createResetResumeDiv();
 function pauseTheGame() {
+  console.log("control !!!!!!!!!HERE");
+  body.classList.add("blur");
+  body.appendChild(resumeMenu);
+  document.body.appendChild(pauseMenu);
   gameIsPaused = true;
   if (playerBlueTimer.isRunning) {
     playerBlueTimer.pause();
@@ -1306,25 +1335,39 @@ function undo() {
         swappingPieceTwoInfo.swappingPiece
       );
       numberOfReplaySteps++;
-      updateMovesBoard(false)
+      updateMovesBoard(false);
     } else if (positions.action == "movement") {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       numberOfReplaySteps++;
       moveThePiece(finalPosition, initialPosition, piece, true);
     } else if (positions.destroyedSrech) {
+      const destroyedPiece = positions.player + "sRech";
+      const comparingObject = movesHistory[index -1];
       let domElementRequired = positions.destroyedDomElement;
       let reqPiece = positions.destroyedPiece;
+      if (comparingObject.piece != destroyedPiece) {
+        placeThePiece(positions.positionWhereDestroyed,domElementRequired,reqPiece);
+        occupiedPositions.push(positions.positionWhereDestroyed);
+        positions.destroyedSrech = false;
+        numberOfReplaySteps++;
+        return;
+      }
+      numberOfReplaySteps++;
+      let index5 = movesHistory.length - 1 - numberOfReplaySteps;
       positions.destroyedSrech = false;
       numberOfReplaySteps++;
-      let index5 = movesHistory.length -1 - numberOfReplaySteps;
-      let positions2 = movesHistory[index5]
+      let positions2 = movesHistory[index5];
+      console.log("Positions 2");
+      console.log(positions2);
       let initialPosition2 = positions2.initialPosition;
-      placeThePiece(initialPosition2,domElementRequired , reqPiece);
+      console.log("Initial position 2 :- " + initialPosition2 );
+      placeThePiece(initialPosition2, domElementRequired, reqPiece);
       occupiedPositions.push(positions2.initialPosition);
-      console.log(occupiedPositions);
-      numberOfReplaySteps++;
-    } else if(positions.action == "rotation") {
+      console.log("SEE HERE FOOL !!!!!!!!!!!");
+      console.log(movesHistory);
+      // numberOfReplaySteps++;
+    } else if (positions.action == "rotation") {
       numberOfReplaySteps++;
       rotateThepiece(piece, rotation, true);
     }
@@ -1339,6 +1382,10 @@ function undo() {
 
 function redo() {
   try {
+    if (!hasUndone) {
+      alert("No Redo steps Are Possible");
+      return;
+    }
     shouldHistoryBeCleared = true;
     numberOfReplaySteps--;
     let index = movesHistory.length - 1 - numberOfReplaySteps;
@@ -1369,24 +1416,22 @@ function redo() {
         swappingPieceTwoInfo.selectedPieceDomElement,
         swappingPieceTwoInfo.swappingPiece
       );
-      
     } else if (positions.action == "movement") {
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       moveThePiece(initialPosition, finalPosition, piece, true);
-    }else if (positions.action == "destroyed") {
+    } else if (positions.action == "destroyed") {
       console.log("Here Mother Fucker");
       console.log(positions);
       let positionWhereDestroyed = positions.positionWhereDestroyed;
-      let index4 = occupiedPositions.indexOf(positionWhereDestroyed)
-      occupiedPositions.splice(index4,2);
+      let index4 = occupiedPositions.indexOf(positionWhereDestroyed);
+      occupiedPositions.splice(index4, 2);
 
       let domElementRequired = positions.destroyedDomElement;
-      removeThePiece(positionWhereDestroyed,domElementRequired);
+      removeThePiece(positionWhereDestroyed, domElementRequired);
       positions.destroyedSrech = true;
       numberOfReplaySteps--;
-    }
-     else {
+    } else {
       rotateThepiece(piece, rotation, true);
     }
     hasUndone = true;
@@ -1464,8 +1509,6 @@ function swappingAction(gridElement, fromUndo) {
     switchTheTurn();
     removeTheButtons();
   }
-
 }
 
 makeThePieces();
-
