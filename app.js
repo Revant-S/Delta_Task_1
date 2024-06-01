@@ -38,7 +38,6 @@ const bulletUp = document.createElement("div");
 const bulletDown = document.createElement("div");
 const bulletLeft = document.createElement("div");
 const bulletRight = document.createElement("div");
-let firstSelection = false;
 let gameNumber = localStorage.getItem("gameNumber");
 if (!gameNumber) {
   gameNumber = 0;
@@ -175,6 +174,7 @@ swapButton.id = "swap";
 const sRechButtonsArray = [upLeft, upRight, downLeft, downRight];
 const rechButtonsArray = [rotateLeft, rotateRight, swapButton];
 
+// console.log(pieceDomElements);
 function makeTheBulletDivs() {
   bulletUp.classList.add("gridElement");
   bulletDown.classList.add("gridElement");
@@ -290,6 +290,7 @@ let pieceState = {
     player: "red",
     direction: "upRight",
     pieceId: "sRechr",
+    isdestroyed : false
   },
   blueTitan: {
     position: 58,
@@ -322,6 +323,7 @@ let pieceState = {
     player: "blue",
     direction: "upRight",
     pieceId: "sRechb",
+    isdestroyed : false
   },
 };
 function validatePlayer() {
@@ -395,10 +397,10 @@ function updateMovesBoard(add) {
       movesHistory[len - 1].sentence = reqString;
     }
   } else {
-    // console.log(movesHistory);
-    moveBoard.innerHTML = "";
-    console.log("After Undo Or ReDo");
     console.log(movesHistory);
+    moveBoard.innerHTML = "";
+    // console.log("After Undo Or ReDo");
+    // console.log(movesHistory);
     for (let index = 0; index < movesHistory.length; index++) {
       const element = movesHistory[index];
       const divToAdd = document.createElement("div");
@@ -422,97 +424,67 @@ function gameOver(winner) {
   gameOverMenu.showModal();
   playerRedTimer.stop();
   playerBlueTimer.stop();
-
-  localStorage.setItem("gameNumber", ++gameNumber);
-  localStorage.setItem(gameNumber, movesHistory);
+  endGameProcedures();
   return;
 }
-const initialSetupObject = {
-  redTitan: {
-    position: 2,
-    domElement: redTitan,
-    player: "red",
-    pieceId: "Titanr",
-  },
-  redCanon: {
-    position: 4,
-    domElement: redCanon,
-    player: "red",
-    pieceId: "Canonr",
-  },
-  redTank: {
-    position: 9,
-    domElement: redTank,
-    player: "red",
-    pieceId: "Tankr",
-  },
-  redrech: {
-    position: 36,
-    domElement: redRech,
-    player: "red",
-    direction: "right",
-    pieceId: "rechr",
-  },
-  redsRech: {
-    position: 14,
-    domElement: redsRech,
-    player: "red",
-    direction: "upRight",
-    pieceId: "sRechr",
-  },
-  blueTitan: {
-    position: 58,
-    domElement: blueTitan,
-    player: "blue",
-    pieceId: "Titanb",
-  },
-  blueCanon: {
-    position: 60,
-    domElement: blueCanon,
-    player: "blue",
-    pieceId: "Canonb",
-  },
-  blueTank: {
-    position: 49,
-    domElement: blueTank,
-    player: "blue",
-    pieceId: "Tankb",
-  },
-  bluerech: {
-    position: 55,
-    domElement: blueRech,
-    player: "blue",
-    direction: "right",
-    pieceId: "rechb",
-  },
-  bluesRech: {
-    position: 54,
-    domElement: bluesRech,
-    player: "blue",
-    direction: "upRight",
-    pieceId: "sRechb",
-  },
-};
-function firstSetUp(permanent) {
-  if (permanent) {
-    occupiedPositions = [];
-    pieceState = initialSetupObject;
-  }
+const initialSetupString = JSON.stringify(pieceState);
 
-  console.log(initialSetupObject);
-  for (const key in initialSetupObject) {
+const initialOccupiedPositionsString = JSON.stringify(occupiedPositions);
+console.log(initialSetupString);
+console.log("Stringified Array");
+console.log(typeof(initialOccupiedPositionsString));
+let pieceDomElements = {
+  redCanon : redCanon,
+  redTitan : redTitan,
+  redrech : redRech,
+  redsRech : redsRech,
+  redTank : redTank,
+  blueCanon : blueCanon,
+  blueTitan : blueTitan,
+  bluerech : blueRech,
+  bluesRech : bluesRech,
+  blueTank : blueTank,
+  
+}
+function firstSetUp() {
+  
+  let initialSetUpObject = JSON.parse(initialSetupString);
+  let initialOccupiedPositions = JSON.parse(initialOccupiedPositionsString);
+  console.log(initialSetUpObject);
+  console.log(typeof(initialOccupiedPositions));
+  console.log(initialOccupiedPositions);
+  occupiedPositions = [];
+  for (const key in pieceState) {
+    removeThePiece(pieceState[key]["position"],pieceDomElements[key])
+  }
+  pieceState = initialSetUpObject;
+  for (let index = 0; index < initialOccupiedPositions.length; index++) {
+    const element = initialSetUpObject[index];
+    occupiedPositions.push(element);
+  }
+  for (const key in initialSetUpObject) {
     placeThePiece(
-      initialSetupObject[key]["position"],
-      initialSetupObject[key]["domElement"],
+      initialSetUpObject[key]["position"],
+      pieceDomElements[key],
       key
     );
-    console.log("placed");
-    if (permanent) {
-      occupiedPositions.push(initialSetupObject[key]["position"]);
+    if (
+      key == "redrech" ||
+      key == "redsRech" ||
+      key == "bluerech" ||
+      key == "bluesRech"
+    ) {
+      rotateThepiece(key, initialSetUpObject[key]["direction"], false);
     }
   }
+  console.log("INITIAL SETUP");
+  console.log(initialSetUpObject);
+  console.log("OCCUPIED POSITIONS");
+  console.log(occupiedPositions);
+  whichPlayerTurn = "red";
+  occupiedPositions = initialOccupiedPositions;
+  moveBoard.innerHTML = "";
 }
-function finalSetup() {}
 
 function eventListnerToTheButtons() {
   for (let index = 0; index < rechButtonsArray.length; index++) {
@@ -646,6 +618,13 @@ const canon = [redCanon, blueCanon];
 
 const redPieces = [redTitan, redRech, redTank, redCanon, redsRech];
 const bluePieces = [blueTitan, blueRech, blueTank, blueCanon, bluesRech];
+
+function endGameProcedures() {
+  gameNumber++;
+  localStorage.setItem("gameNumber", gameNumber.toString());
+  localStorage.setItem(gameNumber.toString(), JSON.stringify(movesHistory));
+  movesHistory = [];
+}
 
 function removeTheHighlight() {
   for (let index = 0; index < nodeList.length; index++) {
@@ -1014,7 +993,7 @@ function clearTheRotationAnimation(piece) {
   let domelement = pieceState[piece]["domElement"];
   let image = domelement.firstChild;
   image.classList.remove("commonRotation");
-  console.log("animations Removed");
+  // console.log("animations Removed");
 }
 
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
@@ -1025,8 +1004,8 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     moveBoard.removeChild(moveBoard.lastElementChild);
   }
   // clearTheRotationAnimation(piece);
-  console.log("HISTORY WHILE CLEARING !!!!!!!");
-  console.log(movesHistory);
+  // console.log("HISTORY WHILE CLEARING !!!!!!!");
+  // console.log(movesHistory);
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
@@ -1064,18 +1043,15 @@ function destroyThesRech(piece) {
   removeThePiece(srechPosition, srechDomElement);
   let index3 = occupiedPositions.indexOf(srechPosition);
   occupiedPositions.splice(index3, 1);
-  console.log(occupiedPositions);
   const explosionAudio = new Audio("explosion.mp3");
   explosionAudio.play();
-  pieceState[piece]["destroyed"] = true;
+  pieceState[piece]["isdestroyed"] = true;
   bulletPath = [];
   bulletDirectionArray = [];
   let playerDes = "red";
   if (whichPlayerTurn == "red") {
     playerDes = "blue";
   }
-  console.log("SEE HERE !!!!!!!!!!");
-  console.log(movesHistory);
   let destroyedsRechObject = {
     piece: piece,
     player: playerDes,
@@ -1091,17 +1067,19 @@ function destroyThesRech(piece) {
 }
 
 function initialDirectionOfTheBullet() {
-  console.log(bulletDirection);
+  // console.log(bulletDirection);
   if (whichPlayerTurn == "red") {
     bulletDirection = "down";
   } else {
     bulletDirection = "up";
   }
-  console.log("reaching");
+  // console.log("reaching");
 }
 function detectPiece(position) {
   let returnObject = { canContinue: true, increment: 0, game: true };
   const piece = nodeList[position].firstChild;
+  console.log(nodeList[position]);
+  console.log(piece);
   const pieceId = piece.id;
   const pieceName = pieceId.slice(0, -1);
   const playerIdentifierForSwap = pieceId[pieceId.length - 1];
@@ -1196,7 +1174,7 @@ function detectPiece(position) {
         bulletDirection = "left";
       } else {
         returnObject.canContinue = false;
-        console.log("Here IS THE CONTROL");
+        // console.log("Here IS THE CONTROL");
         returnObject.destroyedsRech = {
           isDestroyed: true,
           whichsRech: whichsRech,
@@ -1210,7 +1188,7 @@ function detectPiece(position) {
         returnObject.increment = -1;
         bulletDirection = "left";
       } else {
-        console.log("Here IS THE CONTROL");
+        // console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
         returnObject.destroyedsRech = {
           isDestroyed: true,
@@ -1225,7 +1203,7 @@ function detectPiece(position) {
         returnObject.increment = 8;
         bulletDirection = "down";
       } else {
-        console.log("Here IS THE CONTROL");
+        // console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
         returnObject.destroyedsRech = {
           isDestroyed: true,
@@ -1262,8 +1240,8 @@ function calculateThePath() {
     } else {
       bulletPath.push(bulletPosition);
       const forwardObject = detectPiece(bulletPosition);
-      console.log("forward Object");
-      console.log(forwardObject);
+      // console.log("forward Object");
+      // console.log(forwardObject);
       if (!forwardObject.canContinue) {
         if (
           forwardObject.destroyedsRech &&
@@ -1305,11 +1283,8 @@ function shootTheBullet() {
       return;
     }
     if (bulletPath[0] == -1) {
-      console.log(
-        "Here MF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      );
       bulletIsTravelling = false;
-      console.log(nodeList[isTitanHitAtPosition].children);
+      // console.log(nodeList[isTitanHitAtPosition].children);
       let whichPlayerWon = "playerRed";
       if (nodeList[isTitanHitAtPosition].classList.contains("playerRed")) {
         whichPlayerWon = "playerBlue";
@@ -1317,7 +1292,7 @@ function shootTheBullet() {
       bulletIsTravelling = false;
       gameOver(whichPlayerWon);
       clearInterval(interval);
-      console.log(finalBulletPosition);
+      // console.log(finalBulletPosition);
       nodeList[finalBulletPosition].removeChild(bulletImageInUse);
       bulletPath = [];
       return;
@@ -1362,10 +1337,10 @@ function shootTheBullet() {
     try {
       if (nodeList[bulletPath[0]].classList.contains("piece")) {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
-        console.log(nodeList[0].children);
+        // console.log(nodeList[0].children);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
     bulletDirectionArray.shift();
     bulletPath.shift();
@@ -1404,7 +1379,9 @@ function resumeTheGame() {
 function resetTheGame() {
   playerBlueTimer.stop();
   playerRedTimer.stop();
-  firstSetUp(true);
+  pauseMenu.close();
+  firstSetUp();
+  endGameProcedures();
 }
 function undo() {
   try {
@@ -1417,9 +1394,9 @@ function undo() {
     let rotation = null;
     exceedOnceUndo = false;
     const positions = movesHistory[index];
-    console.log("IDHAR DEKH GANDU !!!!!!!!!!!!");
-    console.log(index);
-    console.log(positions);
+    // console.log("IDHAR DEKH GANDU !!!!!!!!!!!!");
+    // console.log(index);
+    // console.log(positions);
     rotation = positions.initialOrientation;
     let piece = positions.piece;
     if (positions.action == "swap") {
@@ -1453,10 +1430,10 @@ function undo() {
     } else if (positions.destroyedSrech) {
       const destroyedPiece = positions.piece;
       const comparingObject = movesHistory[index - 1];
-      console.log("HERE !!!!!!!!!!!!!!!!!!!!!!");
-      console.log(comparingObject);
-      console.log(positions);
-      console.log("ALMOST DONE !!!!!!!!!!!!!!!!!!!");
+      // console.log("HERE !!!!!!!!!!!!!!!!!!!!!!");
+      // console.log(comparingObject);
+      // console.log(positions);
+      // console.log("ALMOST DONE !!!!!!!!!!!!!!!!!!!");
       let domElementRequired = positions.destroyedDomElement;
       let reqPiece = positions.destroyedPiece;
       if (comparingObject.piece != destroyedPiece) {
@@ -1475,19 +1452,18 @@ function undo() {
       positions.destroyedSrech = false;
       numberOfReplaySteps++;
       let positions2 = movesHistory[index5];
-      console.log("Positions 2");
-      console.log(positions2);
+      // console.log("Positions 2");
+      // console.log(positions2);
       let initialPosition2 = positions2.initialPosition;
-      console.log("Initial position 2 :- " + initialPosition2);
+      // console.log("Initial position 2 :- " + initialPosition2);
       placeThePiece(initialPosition2, domElementRequired, reqPiece);
       occupiedPositions.push(positions2.initialPosition);
-      console.log("SEE HERE FOOL !!!!!!!!!!!");
-      console.log(movesHistory);
+      // console.log("SEE HERE FOOL !!!!!!!!!!!");
+      // console.log(movesHistory);
       // numberOfReplaySteps++;
     } else if (positions.action == "rotation") {
       numberOfReplaySteps++;
       rotateThepiece(piece, rotation, true);
-
     }
     hasUndone = true;
     switchTheTurn();
@@ -1495,7 +1471,7 @@ function undo() {
   } catch (e) {
     underReplayFstsetup = false;
     alert("No further Undos !!!");
-    console.log(e);
+    // console.log(e);
   }
 }
 
@@ -1510,14 +1486,14 @@ function redo() {
     if (index > movesHistory.length - 1) {
       numberOfReplaySteps = 0;
       alert("NO FURTHER REDOS POSSIBLE!!");
-      return
+      return;
     }
     shouldHistoryBeCleared = true;
 
     const positions = movesHistory[index];
     let piece = positions.piece;
     if (positions.action == "swap") {
-      console.log(movesHistory);
+      // console.log(movesHistory);
       let swappingPieceOneInfo = positions.swappingPieceOneInfo;
       let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
       removeThePiece(
@@ -1575,6 +1551,12 @@ function swapTheRech() {
     ) {
       continue;
     } else {
+      if (key == "redsRech"|| key == "bluesRech") {
+        if (pieceState[key].isdestroyed) {
+          continue;
+        }
+      }
+      console.log(pieceState[key]["domElement"]);
       pieceState[key].domElement.parentNode.classList.add("highlight");
       isReadyToSwap = true;
     }

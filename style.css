@@ -8,6 +8,7 @@
 body {
     font-family: Arial, sans-serif;
     display: flex;
+    background-image: url(background.jpg);
     flex-direction: column;
     min-height: 100vh;
     background-color: #121212; /* Dark background for the body */
@@ -261,10 +262,10 @@ footer {
 }
  @keyframes moveDown {
     from{
-        transform : translateY(0%);
+        transform : translateY(3px);
     }
     to{
-        transform : translateY(100%);
+        transform : translateY(78px);
     }
  }
  @keyframes moveUp {
