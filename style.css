@@ -254,6 +254,9 @@ footer {
     background-color: yellow;
     align-self: center;
 }
+.hide{
+    display: none;
+}
 #buttonSpace {
     display: flex;
     align-items: center;
