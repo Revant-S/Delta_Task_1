@@ -32,6 +32,8 @@ let isTitanHitAtPosition;
 let underReplayFstsetup = false;
 let bulletIsTravelling = false;
 let bulletTailPosition;
+let singlePlayerModeisOn = true;
+let gameIsOver = false;
 const spellDiv = document.querySelector(".spellDiv");
 const spellInput = document.getElementById("spellInput");
 const pauseMenu = document.getElementById("pauseMenu");
@@ -47,14 +49,14 @@ let spellCount = {
   red: {
     hardertank: 0,
     longlivetitan: 0,
-    addtime: 0
+    addtime: 0,
   },
-  blue : {
+  blue: {
     hardertank: 0,
     longlivetitan: 0,
-    addtime: 0
-  }
-}
+    addtime: 0,
+  },
+};
 if (!gameNumber) {
   gameNumber = 0;
 }
@@ -306,8 +308,8 @@ let pieceState = {
     domElement: redTitan,
     player: "red",
     pieceId: "Titanr",
-    isStronger : false,
-    numbrOfTimesMadeStrong : 0
+    isStronger: false,
+    numbrOfTimesMadeStrong: 0,
   },
   redCanon: {
     position: 4,
@@ -342,8 +344,8 @@ let pieceState = {
     domElement: blueTitan,
     player: "blue",
     pieceId: "Titanb",
-    isStronger : false,
-    numbrOfTimesMadeStrong : 0
+    isStronger: false,
+    numbrOfTimesMadeStrong: 0,
   },
   blueCanon: {
     position: 60,
@@ -377,7 +379,9 @@ let pieceState = {
 function validatePlayer() {
   if (
     (whichPlayerTurn == "red" && pieceSelectedOf == "blue") ||
-    (whichPlayerTurn == "blue" && pieceSelectedOf == "red")
+    (whichPlayerTurn == "blue" && pieceSelectedOf == "red")||(
+      whichPlayerTurn == "blue" && singlePlayerModeisOn
+    )
   ) {
     return false;
   }
@@ -540,11 +544,6 @@ function eventListnerToTheButtons() {
 
 eventListnerToTheButtons();
 
-function switchTurn() {
-  whichPlayerTurn = whichPlayerTurn === "red" ? "blue" : "red";
-  turnName.innerText = whichPlayerTurn.toUpperCase();
-  startTimer(whichPlayerTurn);
-}
 
 function rotateThepiece(pieceName, response, fromUndo) {
   if (shouldHistoryBeCleared && !fromUndo) {
@@ -1003,12 +1002,17 @@ updateMovesBoard(false);
 function switchTheTurn() {
   whichPlayerTurn = whichPlayerTurn === "red" ? "blue" : "red";
   turnName.innerText = whichPlayerTurn.toUpperCase();
+  console.log("SWITCH TURNS");
   if (playerRedTimer.isRunning) {
     playerRedTimer.pause();
     playerBlueTimer.start();
   } else if (playerBlueTimer) {
     playerBlueTimer.pause();
     playerRedTimer.start();
+  }
+  if (singlePlayerModeisOn && whichPlayerTurn == "blue") {
+    console.log("BOT RESPONSE IS HERE");
+    setTimeout(botResponse,9000)
   }
 }
 
@@ -1042,9 +1046,6 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     numberOfReplaySteps = 0;
     moveBoard.removeChild(moveBoard.lastElementChild);
   }
-  // clearTheRotationAnimation(piece);
-  // console.log("HISTORY WHILE CLEARING !!!!!!!");
-  // console.log(movesHistory);
   removeThePiece(initialPosition, pieceState[piece]["domElement"], piece);
   placeThePiece(finalPosition, pieceState[piece]["domElement"], piece);
   removeTheHighlight();
@@ -1167,16 +1168,19 @@ function detectPiece(position) {
       }
     }
   } else if (pieceName == "Titan") {
-    if (!pieceState["redTitan"]["isStronger"] || !pieceState["blueTitan"]["isStronger"]) {
-      returnObject.game= false
+    if (
+      !pieceState["redTitan"]["isStronger"] ||
+      !pieceState["blueTitan"]["isStronger"]
+    ) {
+      returnObject.game = false;
     }
     if (playerIdntifier == "r") {
       if (pieceState["redTitan"]["isStronger"]) {
         returnObject.canContinue = false;
-        returnObject.increment = 0;        
+        returnObject.increment = 0;
         pieceState["redTitan"]["isStronger"] = false;
       }
-    }else{
+    } else {
       if (pieceState["blueTitan"]["isStronger"]) {
         returnObject.canContinue = true;
         returnObject.increment = 0;
@@ -1415,7 +1419,6 @@ function shootTheBullet() {
     try {
       if (nodeList[bulletPath[0]].classList.contains("piece")) {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
-        // console.log(nodeList[0].children);
       }
     } catch (error) {
       // console.log(error);
@@ -1703,29 +1706,74 @@ function processTheSpell(response) {
         alert("No more time can be added");
         return;
       }
-      playerRedTimer.remainingTime+=60;
+      playerRedTimer.remainingTime += 60;
       playerRedTimer.numberOfIncrement++;
-      spellCount["red"]["addtime"]++;          
-    }
-    else{
+      spellCount["red"]["addtime"]++;
+    } else {
       if (playerBlueTimer.numberOfIncrement > 2) {
         alert("No more time can be added");
         return;
       }
-      playerBlueTimer.remainingTime+=60
+      playerBlueTimer.remainingTime += 60;
       playerBlueTimer.numberOfIncrement++;
-      spellCount["blue"]["addtime"]++;          
+      spellCount["blue"]["addtime"]++;
     }
   }
   if (res == "longlivetitan") {
     const piece = whichPlayerTurn + "Titan";
     console.log(pieceState[piece]["numbrOfTimesMadeStrong"]);
     if (spellCount[whichPlayerTurn]["longlivetitan"] > 2) {
-      alert("YOU HAVE EXHAUSTED THIS SPELL")
+      alert("YOU HAVE EXHAUSTED THIS SPELL");
       return;
     }
     pieceState[piece]["isStronger"] = true;
     spellCount[whichPlayerTurn]["longlivetitan"]++;
     alert("Stronger " + piece);
   }
+}
+
+function botResponse() {
+  if (whichPlayerTurn == "red" || gameIsOver) {
+    return;
+  }
+  const bluePiecesArray = [
+    "blueTank",
+    "blueTitan",
+    "bluerech",
+    "bluesRech",
+    "blueCanon",
+  ];
+  const botIndex = Math.floor(Math.random() * bluePiecesArray.length);
+  console.log(botIndex);
+  const selectedPieceByBot = bluePiecesArray[botIndex];
+  console.log(selectedPieceByBot);
+  let isValid = false;                                                          
+  while (!isValid) {
+    if (selectedPieceByBot == "bluesRech") {
+      if (!pieceState["bluesRech"]["isdestroyed"]) {
+        isValid = true;
+      } else {
+        botIndex = Math.floor(Math.random() * bluePiecesArray.length);
+        selectedPieceByBot = bluePiecesArray[botIndex];
+      }
+    } else {
+      isValid = true;
+    }
+  }
+  let pieceInFunction = selectedPieceByBot.slice(4);
+  updatePossiblePositions(pieceInFunction);
+  const positionSelectedIndex = Math.floor(Math.random() * possiblePos.length);
+  const positionSelectedByBot = possiblePos[positionSelectedIndex];
+  const selectedpieceObject = pieceState[selectedPieceByBot];
+  console.log(selectedpieceObject);
+  const intialPositionOfBotPiece = selectedpieceObject.position;
+  const finalPosition = positionSelectedByBot;
+  const selectedBotPieceDomElement = selectedpieceObject["domElement"];
+  console.log(selectedBotPieceDomElement);
+  moveThePiece(
+    intialPositionOfBotPiece,
+    finalPosition,
+    selectedPieceByBot,
+    false
+  );
 }
