@@ -59,15 +59,13 @@ const swapButton = document.createElement("button");
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
 
-const spellsArray = ["hardertank", "srechback", "freezecanon", "addtime"];
+const spellsArray = ["hardertank", "freezecanon", "addtime"];
 
 window.addEventListener("keypress", (e) => {
-  console.log("Here is the control");
   let response;
   if (e.key == "Enter") {
     response = spellInput.value;
     spellInput.value = "";
-    console.log(response);
   }
   if (response != null) {
     if (spellsArray.includes(response.toLowerCase())) {
@@ -902,6 +900,7 @@ function makeThePieces() {
 
 function createTimer(player, displayElement) {
   this.player = player;
+  this.numberOfIncrement = 0;
   this.totalTime = 300; // 5 minutes in seconds
   this.remainingTime = this.totalTime;
   this.timer = null;
@@ -1665,5 +1664,23 @@ function processTheSpell(response) {
     const pieceHard = whichPlayerTurn + "Tank";
     pieceState[pieceHard]["isHard"] = true;
     alert("Harder " + pieceHard);
+  }
+  if (res == "addtime") {
+    if (whichPlayerTurn == "red") {
+      if (playerRedTimer.numberOfIncrement > 2) {
+        alert("No more time can be added");
+        return;
+      }
+      playerRedTimer.remainingTime+=60;
+      playerRedTimer.numberOfIncrement++;
+    }
+    else{
+      if (playerBlueTimer.numberOfIncrement > 2) {
+        alert("No more time can be added");
+        return;
+      }
+      playerBlueTimer.remainingTime+=60
+      playerBlueTimer.numberOfIncrement++;
+    }
   }
 }
