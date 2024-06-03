@@ -43,6 +43,18 @@ const bulletDown = document.createElement("div");
 const bulletLeft = document.createElement("div");
 const bulletRight = document.createElement("div");
 let gameNumber = localStorage.getItem("gameNumber");
+let spellCount = {
+  red: {
+    hardertank: 0,
+    longlivetitan: 0,
+    addtime: 0
+  },
+  blue : {
+    hardertank: 0,
+    longlivetitan: 0,
+    addtime: 0
+  }
+}
 if (!gameNumber) {
   gameNumber = 0;
 }
@@ -59,7 +71,7 @@ const swapButton = document.createElement("button");
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
 
-const spellsArray = ["hardertank", "freezecanon", "addtime"];
+const spellsArray = ["hardertank", "longlivetitan", "addtime"];
 
 window.addEventListener("keypress", (e) => {
   let response;
@@ -294,6 +306,8 @@ let pieceState = {
     domElement: redTitan,
     player: "red",
     pieceId: "Titanr",
+    isStronger : false,
+    numbrOfTimesMadeStrong : 0
   },
   redCanon: {
     position: 4,
@@ -328,6 +342,8 @@ let pieceState = {
     domElement: blueTitan,
     player: "blue",
     pieceId: "Titanb",
+    isStronger : false,
+    numbrOfTimesMadeStrong : 0
   },
   blueCanon: {
     position: 60,
@@ -1151,7 +1167,22 @@ function detectPiece(position) {
       }
     }
   } else if (pieceName == "Titan") {
-    returnObject.game = false;
+    if (!pieceState["redTitan"]["isStronger"] || !pieceState["blueTitan"]["isStronger"]) {
+      returnObject.game= false
+    }
+    if (playerIdntifier == "r") {
+      if (pieceState["redTitan"]["isStronger"]) {
+        returnObject.canContinue = false;
+        returnObject.increment = 0;        
+        pieceState["redTitan"]["isStronger"] = false;
+      }
+    }else{
+      if (pieceState["blueTitan"]["isStronger"]) {
+        returnObject.canContinue = true;
+        returnObject.increment = 0;
+        pieceState["blueTitan"]["isStronger"] = false;
+      }
+    }
   } else if (pieceName == "rech") {
     let whichRech = "bluerech";
     if (playerIdentifierForSwap == "r") {
@@ -1661,6 +1692,7 @@ makeThePieces();
 function processTheSpell(response) {
   let res = response.toLowerCase();
   if (res == "hardertank") {
+    spellCount[whichPlayerTurn]["hardertank"]++;
     const pieceHard = whichPlayerTurn + "Tank";
     pieceState[pieceHard]["isHard"] = true;
     alert("Harder " + pieceHard);
@@ -1673,6 +1705,7 @@ function processTheSpell(response) {
       }
       playerRedTimer.remainingTime+=60;
       playerRedTimer.numberOfIncrement++;
+      spellCount["red"]["addtime"]++;          
     }
     else{
       if (playerBlueTimer.numberOfIncrement > 2) {
@@ -1681,6 +1714,18 @@ function processTheSpell(response) {
       }
       playerBlueTimer.remainingTime+=60
       playerBlueTimer.numberOfIncrement++;
+      spellCount["blue"]["addtime"]++;          
     }
+  }
+  if (res == "longlivetitan") {
+    const piece = whichPlayerTurn + "Titan";
+    console.log(pieceState[piece]["numbrOfTimesMadeStrong"]);
+    if (spellCount[whichPlayerTurn]["longlivetitan"] > 2) {
+      alert("YOU HAVE EXHAUSTED THIS SPELL")
+      return;
+    }
+    pieceState[piece]["isStronger"] = true;
+    spellCount[whichPlayerTurn]["longlivetitan"]++;
+    alert("Stronger " + piece);
   }
 }
