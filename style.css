@@ -426,27 +426,20 @@ footer {
 }
 
 #startMenu[open]{
-    position: absolute;
-    left: 25%;
+    position: fixed;
+    left: 45%;
     top: 5%;
-    right: 25%;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    /* background-image: url(startMenuBack.jpg); */
-    /* opacity: ; */
     background-color: transparent;
     height: 100%;
-    aspect-ratio: 1/1;
     justify-content: space-evenly;
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    /* border-radius: 10px; */
-    align-items: center;
+    align-items: center; 
     border: transparent;
-    /* backdrop-filter: blur(70px); */
-
 }
 
 .gameMenu{
@@ -573,15 +566,15 @@ footer {
         position: relative;
     }
     #startMenu[open]{
-        position: absolute;
-        left: 25%;
+        position: fixed;
         top: 10%;
+        transform: translateX(-25%);
         display: flex;
         flex-direction: column;
         gap: 5px;
         background-color: transparent;
         height: 100%;
-        aspect-ratio: 1/1;
+        /* aspect-ratio: 1/1; */
         justify-content: space-evenly;
         background-position: center;
         background-repeat: no-repeat;

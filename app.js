@@ -1226,23 +1226,22 @@ function detectPiece(position) {
       }
     }
   } else if (pieceName == "Titan") {
-    if (
-      !pieceState["redTitan"]["isStronger"] ||
-      !pieceState["blueTitan"]["isStronger"]
-    ) {
-      returnObject.game = false;
-    }
     if (playerIdntifier == "r") {
       if (pieceState["redTitan"]["isStronger"]) {
         returnObject.canContinue = false;
         returnObject.increment = 0;
         pieceState["redTitan"]["isStronger"] = false;
       }
+      else{
+        returnObject.game = false;
+      }
     } else {
       if (pieceState["blueTitan"]["isStronger"]) {
-        returnObject.canContinue = true;
+        returnObject.canContinue = false;
         returnObject.increment = 0;
         pieceState["blueTitan"]["isStronger"] = false;
+      }else{
+        returnObject.game = false;
       }
     }
   } else if (pieceName == "rech") {
@@ -1427,13 +1426,14 @@ function shootTheBullet() {
       console.log(nodeList[isTitanHitAtPosition].children);
       let whichPlayerWon = "playerRed";
       console.log(isTitanHitAtPosition);
-      if (nodeList[isTitanHitAtPosition].classList.contains("playerRed")) {
+      console.log("HELLO SIR SEE HERE!!!!!!!");
+      console.log(nodeList[isTitanHitAtPosition].firstChild.classList.contains("playerRed"));
+      if (nodeList[isTitanHitAtPosition].firstChild.classList.contains("playerRed")) {
         whichPlayerWon = "playerBlue";
       }
       bulletIsTravelling = false;
       gameOver(whichPlayerWon);
       clearInterval(interval);
-      // console.log(finalBulletPosition);
       nodeList[finalBulletPosition].removeChild(bulletImageInUse);
       bulletPath = [];
       return;
@@ -1480,7 +1480,6 @@ function shootTheBullet() {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
       }
     } catch (error) {
-      // console.log(error);
     }
     bulletDirectionArray.shift();
     bulletPath.shift();
@@ -1780,7 +1779,6 @@ function processTheSpell(response) {
   }
   if (res == "longlivetitan") {
     const piece = whichPlayerTurn + "Titan";
-    console.log(pieceState[piece]["numbrOfTimesMadeStrong"]);
     if (spellCount[whichPlayerTurn]["longlivetitan"] > 2) {
       alert("YOU HAVE EXHAUSTED THIS SPELL");
       return;
