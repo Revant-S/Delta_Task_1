@@ -4,7 +4,8 @@
     padding: 0;
     box-sizing: border-box;
 }
-html body{
+
+html body {
     margin: 0;
     height: 100%;
     width: 100%;
@@ -16,15 +17,19 @@ body {
     background-image: url(background.jpg);
     flex-direction: column;
     min-height: 100vh;
-    background-color: #121212; /* Dark background for the body */
-    color: #e0e0e0; /* Light text color */
+    background-color: #121212;
+    /* Dark background for the body */
+    color: #e0e0e0;
+    /* Light text color */
 }
 
 header {
     text-align: center;
     padding: 20px;
-    background-color: #1f1f1f; /* Dark background for header */
-    color: #e0e0e0; /* Light text color for header */
+    background-color: #1f1f1f;
+    /* Dark background for header */
+    color: #e0e0e0;
+    /* Light text color for header */
 }
 
 #pauseMenu {
@@ -92,13 +97,15 @@ header {
 }
 
 .grey {
-    background-color: #3e3e3e; /* Dark grey for grid */
+    background-color: #3e3e3e;
+    /* Dark grey for grid */
     opacity: 1;
     color: white;
 }
 
 .white {
-    background-color: #cfcfcf; /* Light grey for grid */
+    background-color: #cfcfcf;
+    /* Light grey for grid */
     opacity: 1;
     color: black;
 }
@@ -112,14 +119,15 @@ header {
     width: 100%;
 }
 
-.board, .movesBoard {
+.board,
+.movesBoard {
     width: 100%;
     max-width: 600px;
     margin: 10px 0;
 }
 
 .board {
-    background-color: #1f1f1f; 
+    background-color: #1f1f1f;
     height: 600px;
     display: grid;
     grid-template-rows: repeat(8, 1fr);
@@ -129,11 +137,13 @@ header {
 .movesBoard {
     display: flex;
     flex-direction: column;
-    height: 600px; 
-    background-color: #1f1f1f; 
+    height: 600px;
+    background-color: #1f1f1f;
 }
 
-.top, #middle, .bottom {
+.top,
+#middle,
+.bottom {
     display: flex;
     padding: 10px;
 }
@@ -142,25 +152,27 @@ header {
     justify-content: space-between;
 }
 
-.playerRed, .playerBlue, .turn {
+.playerRed,
+.playerBlue,
+.turn {
     flex: 1;
     text-align: center;
     padding: 5px;
     margin: 5px;
-    background-color: #2c2c2c; 
+    background-color: #2c2c2c;
     color: #e0e0e0;
 }
 
 .turn {
-    flex: 2; 
+    flex: 2;
 }
 
 #middle {
     flex-grow: 1;
     overflow-y: auto;
     flex-direction: column;
-    background-color: #2c2c2c; 
-    border: 1px solid #444; 
+    background-color: #2c2c2c;
+    border: 1px solid #444;
     padding: 10px;
     margin: 10px 0;
     color: #e0e0e0;
@@ -173,7 +185,7 @@ header {
 .btn {
     flex: 1;
     justify-content: center;
-    height: 4vh ;
+    height: 4vh;
     margin: 1px;
     /* padding: 2px 1px;  */
     background-color: #007bff;
@@ -188,21 +200,23 @@ header {
     transition: 0.9s;
     /* height: auto; */
 }
-#githublogo{
+
+#githublogo {
     height: 100%;
     width: 100%;
-    object-fit:contain;
+    object-fit: contain;
 }
+
 footer {
     text-align: center;
     padding: 20px;
     background-color: #1f1f1f;
-    color: #e0e0e0; 
+    color: #e0e0e0;
     height: 10px;
     width: 10px;
 }
 
-.moveBoardElement{
+.moveBoardElement {
     padding: 1%;
     border: 2px black solid;
     width: 90%;
@@ -211,22 +225,28 @@ footer {
     backdrop-filter: blur(10px);
     text-align: center;
 }
-.redback{
+
+.redback {
     color: red;
     /* background-color:rgb(248, 211, 211) ; */
     backdrop-filter: blur(10px);
 }
-.blueback{
+
+.blueback {
     color: rgb(158, 158, 255);
     /* background-color:rgb(248, 211, 211) ; */
     backdrop-filter: blur(10px);
 }
-.gameOverBoard{
+
+.gameOverBoard {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.playerRed, .playerBlue, .highlight {
+
+.playerRed,
+.playerBlue,
+.highlight {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -249,18 +269,19 @@ footer {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px); 
-    z-index: 1; 
-    display: none; 
+    backdrop-filter: blur(10px);
+    z-index: 1;
+    display: none;
 }
 
 .highlight {
     background-color: #4CAF50;
-    box-shadow: 
-    0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s;
     justify-content: center;
 }
+
 .bullet {
     width: 20px;
     height: 20px;
@@ -269,7 +290,8 @@ footer {
     align-self: center;
     z-index: 1;
 }
-.bulletClass{
+
+.bulletClass {
     z-index: 2;
 }
 
@@ -279,13 +301,16 @@ footer {
     justify-content: center;
     width: 100%;
 }
-.NumberDiv{
+
+.NumberDiv {
     z-index: 1;
 }
-.gridElement::backdrop{
+
+.gridElement::backdrop {
     content: attr(id);
 }
-.replayoptions{
+
+.replayoptions {
     padding: 1%;
     border-radius: 10px;
     color: white;
@@ -299,116 +324,139 @@ footer {
     transition: 0.5s all;
 }
 
-.replayoptions:hover{
+.replayoptions:hover {
     transform: translateY(-5px);
     /* padding: 3%; */
     backdrop-filter: blur(15px);
     color: red;
 }
-.hide{
+
+.hide {
     display: none;
 }
- @keyframes moveDown {
-    from{
-        transform : translateY(3px);
-    }
-    to{
-        transform : translateY(78px);
-    }
- }
- @keyframes moveUp {
-    from{
-        transform : translateY(-1px);
-    }
-    to{
-        transform : translateY(-75px);
-    }
- }
 
- @keyframes moveRight {
-    from{
-        transform : translateX(1px);
+@keyframes moveDown {
+    from {
+        transform: translateY(3px);
     }
-    to{
-        transform : translateX(75px);
-    }
- }
 
- @keyframes moveLeft {
-    from{
-        transform : translateX(0px);
+    to {
+        transform: translateY(78px);
     }
-    to{
-        transform : translateX(-75px);
-    }
- }
+}
 
- @keyframes rotateRight {
-    from{
-        transform : rotate(90deg);
+@keyframes moveUp {
+    from {
+        transform: translateY(-1px);
     }
-    to{
-        transform : rotate(0deg);
+
+    to {
+        transform: translateY(-75px);
     }
- }
- @keyframes rotateLeft {
-    from{
-        transform : rotate(0deg);
+}
+
+@keyframes moveRight {
+    from {
+        transform: translateX(1px);
     }
-    to{
-        transform : rotate(90deg);
+
+    to {
+        transform: translateX(75px);
     }
- }
- @keyframes rotateto270 {
-    from{
-        transform : rotate(90deg);
+}
+
+@keyframes moveLeft {
+    from {
+        transform: translateX(0px);
     }
-    to{
-        transform : rotate(0deg);
+
+    to {
+        transform: translateX(-75px);
     }
- }
- @keyframes rotateto180 {
-    from{
-        transform : rotate(90deg);
+}
+
+@keyframes rotateRight {
+    from {
+        transform: rotate(90deg);
     }
-    to{
-        transform : rotate(0deg);
+
+    to {
+        transform: rotate(0deg);
     }
- }
- .commonRotation{
+}
+
+@keyframes rotateLeft {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes rotateto270 {
+    from {
+        transform: rotate(90deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes rotateto180 {
+    from {
+        transform: rotate(90deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.commonRotation {
     animation-duration: 0.3s;
     animation-timing-function: linear;
-    animation-iteration-count:1;
+    animation-iteration-count: 1;
 }
- .bulletAnimationCommon{
+
+.bulletAnimationCommon {
     animation-duration: 0.2s;
     animation-timing-function: linear;
-    animation-iteration-count:1;
+    animation-iteration-count: 1;
 }
-.animateRotateRight{
+
+.animateRotateRight {
     animation-name: rotateRight;
 }
-.animateRotateLeft{
+
+.animateRotateLeft {
     animation-name: rotateLeft;
 }
-.animationDown{
+
+.animationDown {
     animation-name: moveDown;
 }
-.animationUp{
+
+.animationUp {
     animation-name: moveUp;
 }
-.animationLeft{
+
+.animationLeft {
     animation-name: moveLeft;
 }
-.animationRight{
+
+.animationRight {
     animation-name: moveRight;
 }
 
-.NumberDiv{
+.NumberDiv {
     z-index: 1;
 }
-.spellDiv{
-    position: relative  ;
+
+.spellDiv {
+    position: relative;
     display: flex;
     margin-bottom: 2%;
     margin-left: 5%;
@@ -416,19 +464,19 @@ footer {
     margin-top: 4%;
 }
 
-#spellInput{
+#spellInput {
     margin-right: 2%;
-    width: 100% ;
-    height: 100% ;
+    width: 100%;
+    height: 100%;
     font-size: x-large;
     /* height: max-content; */
     /* position: absolute;                                                                                                                   */
 }
 
-#startMenu[open]{
+#startMenu[open] {
     position: fixed;
-    left: 45%;
-    top: 5%;
+    left: 35%;
+    top: 15%;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -438,19 +486,22 @@ footer {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    align-items: center; 
+    align-items: stretch;
     border: transparent;
+    width: 30%;
 }
 
-.gameMenu{
+.gameMenu {
     flex-grow: 1;
     overflow-y: auto;
     flex-direction: column;
 }
-#startMenu::before{
+
+#startMenu::before {
     backdrop-filter: blur(40px);
 }
-.startMenuButon{
+
+.startMenuButon {
     background-color: #007BFF;
     color: white;
     padding: 5%;
@@ -458,38 +509,43 @@ footer {
     border-radius: 10px;
     cursor: pointer;
     transition: 0.3s
-
 }
-.startMenuButon:hover{
+
+.startMenuButon:hover {
     background-color: white;
     color: blue;
     transform: translateY(-5px);
 }
-.hide{
+
+.hide {
     display: none;
     height: 0px;
 
 }
-.up{
+
+.up {
     display: flex;
     width: 100%;
     justify-content: space-around;
 }
+
 @media screen and (max-width: 1355px) {
     #middle {
         display: none;
     }
+
     .board {
-        background-color: #1f1f1f; 
+        background-color: #1f1f1f;
         height: 80%;
         display: grid;
         grid-template-rows: repeat(8, 1fr);
         grid-template-columns: repeat(8, 1fr);
     }
-    
-    .movesBoard{
+
+    .movesBoard {
         height: auto;
     }
+
     header {
         text-align: center;
         padding: 10px;
@@ -510,24 +566,31 @@ footer {
         align-items: center;
         justify-content: center;
     }
-    #spellInput{
+
+    #spellInput {
         margin-right: 2%;
-        width: 100% ;
-        height: 100% ;
+        width: 100%;
+        height: 100%;
         font-size: large;
     }
-    .playerRed, .playerBlue {
+
+    .playerRed,
+    .playerBlue {
         margin-bottom: 10px;
         border: 1px solid;
     }
-    .playerRed{
+
+    .playerRed {
         border: 1px red solid;
     }
-    .playerBlue{
+
+    .playerBlue {
         border: 1px blue solid;
     }
 
-    .playerRed, .playerBlue, #turnName {
+    .playerRed,
+    .playerBlue,
+    #turnName {
         width: 100%;
         text-align: center;
         padding: 5px;
@@ -550,7 +613,7 @@ footer {
     .btn {
         flex: 1;
         justify-content: center;
-        height: 4vh ;
+        height: 4vh;
         margin: 1px;
         /* padding: 2px 1px;  */
         background-color: #007bff;
@@ -558,35 +621,37 @@ footer {
         border: none;
         cursor: pointer;
     }
-    
+
     .gridElement {
         display: flex;
         justify-content: center;
         align-items: center;
         position: relative;
     }
-    #startMenu[open]{
+
+    #startMenu[open] {
         position: fixed;
-        top: 10%;
-        transform: translateX(-25%);
+        left: 30%;
+        top: 15%;
         display: flex;
         flex-direction: column;
         gap: 5px;
         background-color: transparent;
         height: 100%;
-        /* aspect-ratio: 1/1; */
         justify-content: space-evenly;
         background-position: center;
         background-repeat: no-repeat;
         background-size: contain;
-        align-items: center;
+        align-items: stretch;
         border: transparent;
+        width: 40%;
     }
-    
-    #startMenu::before{
+
+    #startMenu::before {
         backdrop-filter: blur(40px);
     }
-    .startMenuButon{
+
+    .startMenuButon {
         background-color: #007BFF;
         color: white;
         padding: 5%;
@@ -594,12 +659,11 @@ footer {
         border-radius: 10px;
         cursor: pointer;
         transition: 0.3s
-    
     }
-    .startMenuButon:hover{
+
+    .startMenuButon:hover {
         background-color: white;
         color: blue;
-        
+
     }
 }
-
