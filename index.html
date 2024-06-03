@@ -15,42 +15,45 @@
     <dialog id="startMenu">
         <button class="startMenuButon" id="singlePlayerMode">Single Player Mode</button>
         <button class="startMenuButon" id="doublePlayerMode"> Double Player Mode</button>
+
+        <button class="startMenuButon" id="replay">Replay</button>
     </dialog>
-    
 
-   <div class="overlay"  id="CompleteGame">
-    <dialog id="pauseMenu"></dialog>
-    <dialog id="gameOver"></dialog>
-   
-    <div class="master">
-        <div class="board"></div>
-        <div class="movesBoard">
-            <div class="top">
-                <div class="playerRed"><span id="red-timer">05:00</span></div>
-                <div class="turn" id="turnName">Turn: Red</div>
-                <div class="playerBlue"><span id="blue-timer">05:00</span></div>
-            </div>
-            <div class="spellDiv">
-                <input type="text" for = "spell" id="spellInput" placeholder="Enter spell here and press 'Enter' to apply" autocomplete="off">
-                <!-- <input type="submit" id="spell" value="Apply" class="btn"> -->
-            </div>
-            <div id="middle">
 
-                <!-- Moves will be dynamically added here -->
+    <div class="overlay" id="CompleteGame">
+        <dialog id="pauseMenu"></dialog>
+        <dialog id="gameOver"></dialog>
+
+        <div class="master">
+            <div class="board"></div>
+            <div class="movesBoard">
+                <div class="top">
+                    <div class="playerRed"><span id="red-timer">05:00</span></div>
+                    <div class="turn" id="turnName">Turn: Red</div>
+                    <div class="playerBlue"><span id="blue-timer">05:00</span></div>
+                </div>
+                <div class="spellDiv">
+                    <input type="text" for="spell" id="spellInput"
+                        placeholder="Enter spell here and press 'Enter' to apply" autocomplete="off">
+                    <!-- <input type="submit" id="spell" value="Apply" class="btn"> -->
+                </div>
+                <div id="middle">
+
+                    <!-- Moves will be dynamically added here -->
+                </div>
+                <div class="bottom">
+                    <button class="btn" id="undoButton"></button>
+                    <button class="btn" id="pauseButton"></button>
+                    <button class="btn" id="redoButton"></button>
+                </div>
+                <div id="buttonSpace"></div>
             </div>
-            <div class="bottom">
-                <button class="btn" id="undoButton"></button>
-                <button class="btn" id="pauseButton"></button>
-                <button class="btn" id="redoButton"></button>
-            </div>
-            <div  id="buttonSpace"></div>
         </div>
     </div>
-   </div>
 
     <footer>
         <a href="https://github.com/Revant-S" target="_blank">
-            <img id = "githublogo" src="github.svg" >
+            <img id="githublogo" src="github.svg">
         </a>
     </footer>
 

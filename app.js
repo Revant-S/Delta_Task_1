@@ -35,6 +35,8 @@ let bulletIsTravelling = false;
 let bulletTailPosition;
 let singlePlayerModeisOn = true;
 let gameIsOver = false;
+let gameReplayIsOn = false;
+let winnerInfo = {};
 const spellDiv = document.querySelector(".spellDiv");
 const spellInput = document.getElementById("spellInput");
 const pauseMenu = document.getElementById("pauseMenu");
@@ -48,6 +50,7 @@ const bulletRight = document.createElement("div");
 let gameNumber = localStorage.getItem("gameNumber");
 const singlePlayerModeBtn = document.getElementById("singlePlayerMode");
 const doublePlayerModeBtn = document.getElementById("doublePlayerMode");
+const replayBtn = document.getElementById("replay");
 let spellCount = {
   red: {
     hardertank: 0,
@@ -73,31 +76,41 @@ const buttonSpace = document.querySelector("#buttonSpace");
 const pauseplaybuttonSpace = document.createElement("div");
 const pauseButton = document.getElementById("pauseButton");
 const swapButton = document.createElement("button");
-const startMenu = document.getElementById("startMenu") ;
+const startMenu = document.getElementById("startMenu");
+const updiv = document.querySelector("up");
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
 
-window.addEventListener("load",()=>{
+window.addEventListener("load", () => {
   startMenu.showModal();
-  singlePlayerModeBtn.addEventListener("click" , ()=>{
+  singlePlayerModeBtn.addEventListener("click", () => {
     singlePlayerModeisOn = true;
     startMenu.close();
-    startMenu.classList.add("hide")
-    overlay.classList.remove("overlay")
-    
-  })
-  doublePlayerModeBtn.addEventListener("click" , ()=>{
+    startMenu.classList.add("hide");
+    overlay.classList.remove("overlay");
+    startTheGame();
+  });
+  doublePlayerModeBtn.addEventListener("click", () => {
     singlePlayerModeisOn = false;
     startMenu.close();
-    startMenu.classList.add("hide")
-    overlay.classList.remove("overlay")
-  })
-})
-
+    startMenu.classList.add("hide");
+    overlay.classList.remove("overlay");
+    startTheGame();
+  });
+  replayBtn.addEventListener("click", () => {
+    startMenu.innerHTML = "";
+    startMenu.classList.add("gameMenu");
+    addReplayOptions();
+    startTheGame()
+  });
+});
 
 const spellsArray = ["hardertank", "longlivetitan", "addtime"];
 
 window.addEventListener("keypress", (e) => {
+  if (gameReplayIsOn) {
+    return
+  }
   let response;
   if (e.key == "Enter") {
     response = spellInput.value;
@@ -401,9 +414,9 @@ let pieceState = {
 function validatePlayer() {
   if (
     (whichPlayerTurn == "red" && pieceSelectedOf == "blue") ||
-    (whichPlayerTurn == "blue" && pieceSelectedOf == "red")||(
-      whichPlayerTurn == "blue" && singlePlayerModeisOn
-    )
+    (whichPlayerTurn == "blue" && pieceSelectedOf == "red") ||
+    (whichPlayerTurn == "blue" && singlePlayerModeisOn) ||
+    gameReplayIsOn
   ) {
     return false;
   }
@@ -491,19 +504,23 @@ function updateMovesBoard(add) {
 }
 
 function gameOver(winner) {
+
+  console.log("Game Over");
   console.log(winner);
   let displayName = "Blue";
   if (winner == "playerRed") {
     displayName = "Red";
   }
-  const generalGameInfo = {
-    gameNumber: gameNumber,
-    winner: displayName,
-  };
-  movesHistory.push(generalGameInfo);
+  winnerInfo.winner = displayName;
+  winnerInfo.gameNumber = gameNumber;
   const reqStr = `Player ${displayName} won the game`;
   const div = document.createElement("div");
   div.innerText = reqStr;
+  if (gameReplayIsOn) {
+    div.innerText = `Replay Ends`
+   gameOverMenu.appendChild(div) ;
+   return
+  }
   gameOverMenu.appendChild(div);
   gameOverMenu.appendChild(resetButton);
   gameOverMenu.showModal();
@@ -677,15 +694,22 @@ const redPieces = [redTitan, redRech, redTank, redCanon, redsRech];
 const bluePieces = [blueTitan, blueRech, blueTank, blueCanon, bluesRech];
 
 function endGameProcedures() {
+  let obj;
   if (singlePlayerModeisOn) {
-    const obj = {opponent : "Computer"};
+    obj = { opponent: "Computer" };
+  } else {
+    obj = { opponent: "Human" };
   }
-  else{
-    const obj = {opponent : "Human"};
-  }
+  let finalSavingObject = {};
+  finalSavingObject.gameMode = obj;
+  finalSavingObject.movesHistory = movesHistory;
+  finalSavingObject.winnerInfo = winnerInfo;
   gameNumber++;
   localStorage.setItem("gameNumber", gameNumber.toString());
-  localStorage.setItem(gameNumber.toString(), JSON.stringify(movesHistory));
+  localStorage.setItem(
+    gameNumber.toString(),
+    JSON.stringify(finalSavingObject)
+  );
   movesHistory = [];
 }
 
@@ -943,7 +967,7 @@ function makeThePieces() {
 function createTimer(player, displayElement) {
   this.player = player;
   this.numberOfIncrement = 0;
-  this.totalTime = 300; // 5 minutes in seconds
+  this.totalTime = 300; 
   this.remainingTime = this.totalTime;
   this.timer = null;
   this.isRunning = false;
@@ -959,6 +983,10 @@ function createTimer(player, displayElement) {
   };
 
   this.updateDisplay = function () {
+    if (gameReplayIsOn) {
+      this.displayElement.innerText = "Replay Mode";
+      return
+    }
     this.displayElement.innerText = this.formatTime(this.remainingTime);
   };
 
@@ -1002,7 +1030,7 @@ const blueTimerElement = document.getElementById("blue-timer");
 
 const playerRedTimer = new createTimer("Red", redTimerElement);
 const playerBlueTimer = new createTimer("Blue", blueTimerElement);
-playerRedTimer.start();
+
 
 function updateHistory(
   piece,
@@ -1029,7 +1057,10 @@ updateMovesBoard(false);
 function switchTheTurn() {
   whichPlayerTurn = whichPlayerTurn === "red" ? "blue" : "red";
   turnName.innerText = whichPlayerTurn.toUpperCase();
-  console.log("SWITCH TURNS");
+  if (gameReplayIsOn) {
+    playerRedTimer.stop();
+    playerBlueTimer.stop();
+  }
   if (playerRedTimer.isRunning) {
     playerRedTimer.pause();
     playerBlueTimer.start();
@@ -1039,7 +1070,7 @@ function switchTheTurn() {
   }
   if (singlePlayerModeisOn && whichPlayerTurn == "blue") {
     console.log("BOT RESPONSE IS HERE");
-    setTimeout(botResponse,9000)
+    setTimeout(botResponse, 9000);
   }
 }
 
@@ -1382,7 +1413,6 @@ function shootTheBullet() {
   bulletIsTravelling = true;
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
-    nodeList[bulletTailPosition].innerText = "";
     if (!bulletPath.length) {
       clearInterval(interval);
       bulletIsTravelling = false;
@@ -1393,10 +1423,12 @@ function shootTheBullet() {
     }
     if (bulletPath[0] == -1) {
       bulletIsTravelling = false;
+      console.log("LOOK HERE MF");
       console.log(nodeList[isTitanHitAtPosition].children);
-      let whichPlayerWon = "playerBlue";
-      if (nodeList[isTitanHitAtPosition].classList.contains("playerBlue")) {
-        whichPlayerWon = "playerRed";
+      let whichPlayerWon = "playerRed";
+      console.log(isTitanHitAtPosition);
+      if (nodeList[isTitanHitAtPosition].classList.contains("playerRed")) {
+        whichPlayerWon = "playerBlue";
       }
       bulletIsTravelling = false;
       gameOver(whichPlayerWon);
@@ -1772,7 +1804,7 @@ function botResponse() {
   ];
   let botIndex = Math.floor(Math.random() * bluePiecesArray.length);
   let selectedPieceByBot = bluePiecesArray[botIndex];
-  let isValid = false;                                                          
+  let isValid = false;
   while (!isValid) {
     if (selectedPieceByBot == "bluesRech") {
       if (!pieceState["bluesRech"]["isdestroyed"]) {
@@ -1801,4 +1833,105 @@ function botResponse() {
     selectedPieceByBot,
     false
   );
+}
+
+function addReplayOptions() {
+  const numberOfOptions = parseInt(localStorage.getItem("gameNumber"));
+  if (numberOfOptions == NaN) {
+    const replayOption = document.createElement("div");
+    replayOption.innerText = "NO GAMES FOUND !!!";
+  }
+  for (let index = 1; index <= numberOfOptions; index++) {
+    const replayOption = document.createElement("div");
+    replayOption.id = index + "game";
+    replayOption.classList.add("replayoptions");
+    replayOption.innerText = "Game " + index;
+    replayOption.addEventListener("click", (e) => {
+      const reqEmenetId = parseInt(e.target.id);
+      console.log(parseInt(e.target.id));
+      const gameObject = JSON.parse(
+        localStorage.getItem(reqEmenetId.toString())
+      );
+      replayTheGame(gameObject);
+    });
+    startMenu.appendChild(replayOption);
+  }
+}
+
+function replayTheGame(gameObject) {
+  startMenu.close();
+  overlay.classList.remove("overlay");
+  console.log(gameObject);
+  singlePlayerModeisOn = false;
+  gameReplayIsOn = true;
+  const Originalmoves = gameObject["movesHistory"];
+  let moves = [];
+  for (let index = 0; index < Originalmoves.length; index++) {
+    const element = Originalmoves[index];
+    if (element["action"]== "destroyed") {
+      continue;
+    }
+    moves.push(element);
+  }
+  if (!moves.length) {
+    alert("NO MOVES TO REPLAY");
+    return;
+  }
+
+  let index = 0;
+  const inter = setInterval(function () {
+    playerRedTimer.stop();
+    playerBlueTimer.stop();
+    
+    let moveObject = moves[index];
+    console.log(moveObject);
+
+    if (moveObject["action"] == "movement") {
+      moveThePiece(
+        moveObject.initialPosition,
+        moveObject.finalPosition,
+        moveObject.piece,
+        true
+      );
+      shootTheBullet();
+    } else if (moveObject["action"] == "swap") {
+      let swappingPieceOneInfo = moveObject.swappingPieceOneInfo;
+      let swappingPieceTwoInfo = moveObject.swappingPieceTwoInfo;
+      removeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        pieceDomElements[swappingPieceOneInfo.swappingRech]
+      );
+      removeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        pieceDomElements[swappingPieceTwoInfo.swappingPiece]
+      );
+      placeThePiece(
+        swappingPieceTwoInfo.initialPosition,
+        pieceDomElements[swappingPieceOneInfo.swappingRech],
+        swappingPieceOneInfo.swappingRech
+      );
+      placeThePiece(
+        swappingPieceOneInfo.initialPosition,
+        pieceDomElements[swappingPieceTwoInfo.swappingPiece],
+        swappingPieceTwoInfo.swappingPiece
+      );
+      shootTheBullet();
+    } else if (moveObject["action"] == "rotation") {
+      const rotation = moveObject["finalOrientation"];
+      rotateThepiece(moveObject.piece, rotation, true);
+      shootTheBullet();
+    }
+    switchTheTurn();
+    index++;
+
+    if (index >= moves.length) {
+      clearInterval(inter);
+    }
+    
+  }, 7000);
+}
+
+
+function strtTheGame() {
+  playerRedTimer.start();
 }

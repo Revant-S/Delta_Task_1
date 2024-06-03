@@ -4,6 +4,11 @@
     padding: 0;
     box-sizing: border-box;
 }
+html body{
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -177,7 +182,7 @@ header {
     cursor: pointer;
 }
 
-.btn :hover {
+.btn:hover {
     /* width: 100%; */
     background-color: #8bb2dc;
     transition: 0.9s;
@@ -199,10 +204,8 @@ footer {
 
 .moveBoardElement{
     padding: 1%;
-    text-align: left;
     border: 2px black solid;
     width: 90%;
-    /* max-height: 2%; */
     height: auto;
     margin: 2%;
     backdrop-filter: blur(10px);
@@ -279,10 +282,29 @@ footer {
 .NumberDiv{
     z-index: 1;
 }
-.gridElement ::backdrop{
+.gridElement::backdrop{
     content: attr(id);
 }
+.replayoptions{
+    padding: 1%;
+    border-radius: 10px;
+    color: white;
+    font-size: x-large;
+    border: 2px black solid;
+    width: 90%;
+    height: auto;
+    margin: 2%;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    transition: 0.5s all;
+}
 
+.replayoptions:hover{
+    transform: translateY(-5px);
+    /* padding: 3%; */
+    backdrop-filter: blur(15px);
+    color: red;
+}
 .hide{
     display: none;
 }
@@ -406,20 +428,31 @@ footer {
 #startMenu[open]{
     position: absolute;
     left: 25%;
-    top: 25%;
-    right: 50%;
+    top: 5%;
+    right: 25%;
     display: flex;
+    flex-direction: column;
     gap: 5px;
-    background-image: url(startMenuBack.jpg);
-    height: 70%;
+    /* background-image: url(startMenuBack.jpg); */
+    /* opacity: ; */
+    background-color: transparent;
+    height: 100%;
     aspect-ratio: 1/1;
-    justify-content: center;
+    justify-content: space-evenly;
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     align-items: center;
-    backdrop-filter: blur(70px);
+    border: transparent;
+    /* backdrop-filter: blur(70px); */
+
+}
+
+.gameMenu{
+    flex-grow: 1;
+    overflow-y: auto;
+    flex-direction: column;
 }
 #startMenu::before{
     backdrop-filter: blur(40px);
@@ -443,6 +476,11 @@ footer {
     display: none;
     height: 0px;
 
+}
+.up{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
 }
 @media screen and (max-width: 1355px) {
     #middle {
@@ -476,18 +514,14 @@ footer {
         margin: 2vh;
 
         display: flex;
-        /* flex-direction: column; */
         align-items: center;
         justify-content: center;
-        /* margin-bottom: 10px; */
     }
     #spellInput{
         margin-right: 2%;
         width: 100% ;
         height: 100% ;
         font-size: large;
-        /* height: max-content; */
-        /* position: absolute;                                                                                                                   */
     }
     .playerRed, .playerBlue {
         margin-bottom: 10px;
@@ -540,23 +574,22 @@ footer {
     }
     #startMenu[open]{
         position: absolute;
-        left: 5%;
-        top: 25%;
-        /* right: 25%; */
+        left: 25%;
+        top: 10%;
         display: flex;
         flex-direction: column;
         gap: 5px;
-        background-image: url(startMenuBack.jpg);
-        height: 70%;
+        background-color: transparent;
+        height: 100%;
         aspect-ratio: 1/1;
-        justify-content: center;
+        justify-content: space-evenly;
         background-position: center;
         background-repeat: no-repeat;
         background-size: contain;
-        border-radius: 10px;
         align-items: center;
-        backdrop-filter: blur(70px);
+        border: transparent;
     }
+    
     #startMenu::before{
         backdrop-filter: blur(40px);
     }
