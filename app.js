@@ -1,5 +1,6 @@
 const board = document.querySelector(".board");
 const body = document.querySelector("body");
+const overlay = document.getElementById("CompleteGame");
 let row = 0;
 let colour = ["red", "blue"];
 let possiblePos = [];
@@ -45,6 +46,8 @@ const bulletDown = document.createElement("div");
 const bulletLeft = document.createElement("div");
 const bulletRight = document.createElement("div");
 let gameNumber = localStorage.getItem("gameNumber");
+const singlePlayerModeBtn = document.getElementById("singlePlayerMode");
+const doublePlayerModeBtn = document.getElementById("doublePlayerMode");
 let spellCount = {
   red: {
     hardertank: 0,
@@ -70,8 +73,27 @@ const buttonSpace = document.querySelector("#buttonSpace");
 const pauseplaybuttonSpace = document.createElement("div");
 const pauseButton = document.getElementById("pauseButton");
 const swapButton = document.createElement("button");
+const startMenu = document.getElementById("startMenu") ;
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
+
+window.addEventListener("load",()=>{
+  startMenu.showModal();
+  singlePlayerModeBtn.addEventListener("click" , ()=>{
+    singlePlayerModeisOn = true;
+    startMenu.close();
+    startMenu.classList.add("hide")
+    overlay.classList.remove("overlay")
+    
+  })
+  doublePlayerModeBtn.addEventListener("click" , ()=>{
+    singlePlayerModeisOn = false;
+    startMenu.close();
+    startMenu.classList.add("hide")
+    overlay.classList.remove("overlay")
+  })
+})
+
 
 const spellsArray = ["hardertank", "longlivetitan", "addtime"];
 
@@ -544,7 +566,6 @@ function eventListnerToTheButtons() {
 
 eventListnerToTheButtons();
 
-
 function rotateThepiece(pieceName, response, fromUndo) {
   if (shouldHistoryBeCleared && !fromUndo) {
     removeFromHistory(movesHistory.length - 1 - numberOfReplaySteps);
@@ -656,6 +677,12 @@ const redPieces = [redTitan, redRech, redTank, redCanon, redsRech];
 const bluePieces = [blueTitan, blueRech, blueTank, blueCanon, bluesRech];
 
 function endGameProcedures() {
+  if (singlePlayerModeisOn) {
+    const obj = {opponent : "Computer"};
+  }
+  else{
+    const obj = {opponent : "Human"};
+  }
   gameNumber++;
   localStorage.setItem("gameNumber", gameNumber.toString());
   localStorage.setItem(gameNumber.toString(), JSON.stringify(movesHistory));
@@ -1743,10 +1770,8 @@ function botResponse() {
     "bluesRech",
     "blueCanon",
   ];
-  const botIndex = Math.floor(Math.random() * bluePiecesArray.length);
-  console.log(botIndex);
-  const selectedPieceByBot = bluePiecesArray[botIndex];
-  console.log(selectedPieceByBot);
+  let botIndex = Math.floor(Math.random() * bluePiecesArray.length);
+  let selectedPieceByBot = bluePiecesArray[botIndex];
   let isValid = false;                                                          
   while (!isValid) {
     if (selectedPieceByBot == "bluesRech") {

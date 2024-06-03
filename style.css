@@ -239,15 +239,24 @@ footer {
     padding: 2px;
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px); 
+    z-index: 1; 
+    display: none; 
+}
+
 .highlight {
     background-color: #4CAF50;
-    /* margin: 50px auto; */
-    /* border-radius: 10px; */
     box-shadow: 
     0 5px 15px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s;
     justify-content: center;
-    /* min-height: ; */
 }
 .bullet {
     width: 20px;
@@ -260,9 +269,7 @@ footer {
 .bulletClass{
     z-index: 2;
 }
-.hide{
-    display: none;
-}
+
 #buttonSpace {
     display: flex;
     align-items: center;
@@ -274,6 +281,10 @@ footer {
 }
 .gridElement ::backdrop{
     content: attr(id);
+}
+
+.hide{
+    display: none;
 }
  @keyframes moveDown {
     from{
@@ -392,6 +403,47 @@ footer {
     /* position: absolute;                                                                                                                   */
 }
 
+#startMenu[open]{
+    position: absolute;
+    left: 25%;
+    top: 25%;
+    right: 50%;
+    display: flex;
+    gap: 5px;
+    background-image: url(startMenuBack.jpg);
+    height: 70%;
+    aspect-ratio: 1/1;
+    justify-content: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 10px;
+    align-items: center;
+    backdrop-filter: blur(70px);
+}
+#startMenu::before{
+    backdrop-filter: blur(40px);
+}
+.startMenuButon{
+    background-color: #007BFF;
+    color: white;
+    padding: 5%;
+    font-size: larger;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s
+
+}
+.startMenuButon:hover{
+    background-color: white;
+    color: blue;
+    transform: translateY(-5px);
+}
+.hide{
+    display: none;
+    height: 0px;
+
+}
 @media screen and (max-width: 1355px) {
     #middle {
         display: none;
@@ -429,7 +481,14 @@ footer {
         justify-content: center;
         /* margin-bottom: 10px; */
     }
-
+    #spellInput{
+        margin-right: 2%;
+        width: 100% ;
+        height: 100% ;
+        font-size: large;
+        /* height: max-content; */
+        /* position: absolute;                                                                                                                   */
+    }
     .playerRed, .playerBlue {
         margin-bottom: 10px;
         border: 1px solid;
@@ -478,6 +537,43 @@ footer {
         justify-content: center;
         align-items: center;
         position: relative;
+    }
+    #startMenu[open]{
+        position: absolute;
+        left: 5%;
+        top: 25%;
+        /* right: 25%; */
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background-image: url(startMenuBack.jpg);
+        height: 70%;
+        aspect-ratio: 1/1;
+        justify-content: center;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        border-radius: 10px;
+        align-items: center;
+        backdrop-filter: blur(70px);
+    }
+    #startMenu::before{
+        backdrop-filter: blur(40px);
+    }
+    .startMenuButon{
+        background-color: #007BFF;
+        color: white;
+        padding: 5%;
+        font-size: larger;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s
+    
+    }
+    .startMenuButon:hover{
+        background-color: white;
+        color: blue;
+        
     }
 }
 
