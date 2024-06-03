@@ -1,4 +1,5 @@
 const board = document.querySelector(".board");
+const body = document.querySelector("body");
 let row = 0;
 let colour = ["red", "blue"];
 let possiblePos = [];
@@ -30,6 +31,9 @@ let bulletImageInUse = null;
 let isTitanHitAtPosition;
 let underReplayFstsetup = false;
 let bulletIsTravelling = false;
+let bulletTailPosition;
+const spellDiv = document.querySelector(".spellDiv");
+const spellInput = document.getElementById("spellInput");
 const pauseMenu = document.getElementById("pauseMenu");
 const gameOverMenu = document.getElementById("gameOver");
 const resumeButton = document.createElement("button");
@@ -54,12 +58,33 @@ const pauseButton = document.getElementById("pauseButton");
 const swapButton = document.createElement("button");
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
+
+const spellsArray = ["hardertank", "srechback", "freezecanon", "addtime"];
+
+window.addEventListener("keypress", (e) => {
+  console.log("Here is the control");
+  let response;
+  if (e.key == "Enter") {
+    response = spellInput.value;
+    spellInput.value = "";
+    console.log(response);
+  }
+  if (response != null) {
+    if (spellsArray.includes(response.toLowerCase())) {
+      processTheSpell(response);
+    }
+  }
+  console.log(e);
+});
+
 function generateTheBoard() {
-  pauseMenu.classList.add("hide")
+  pauseMenu.classList.add("hide");
   for (let index = 0; index < 64; index++) {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
+    const NumberDiv = document.createElement("div");
+
     gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
@@ -105,7 +130,6 @@ function generateTheBoard() {
   pauseButton.addEventListener("click", (e) => {
     pauseMenu.classList.remove("hide");
     pauseTheGame();
-
   });
   undoButton.addEventListener("click", () => {
     undo();
@@ -181,9 +205,13 @@ const rechButtonsArray = [rotateLeft, rotateRight, swapButton];
 
 function makeTheBulletDivs() {
   bulletUp.classList.add("gridElement");
+  bulletUp.classList.add("bulletClass");
   bulletDown.classList.add("gridElement");
+  bulletDown.classList.add("bulletClass");
   bulletLeft.classList.add("gridElement");
+  bulletLeft.classList.add("bulletClass");
   bulletRight.classList.add("gridElement");
+  bulletRight.classList.add("bulletClass");
 
   const imageUp = document.createElement("img");
   imageUp.src = "bullet.svg";
@@ -280,6 +308,7 @@ let pieceState = {
     domElement: redTank,
     player: "red",
     pieceId: "Tankr",
+    isHard: false,
   },
   redrech: {
     position: 36,
@@ -294,7 +323,7 @@ let pieceState = {
     player: "red",
     direction: "upRight",
     pieceId: "sRechr",
-    isdestroyed : false
+    isdestroyed: false,
   },
   blueTitan: {
     position: 58,
@@ -313,6 +342,7 @@ let pieceState = {
     domElement: blueTank,
     player: "blue",
     pieceId: "Tankb",
+    isHard: false,
   },
   bluerech: {
     position: 55,
@@ -327,7 +357,7 @@ let pieceState = {
     player: "blue",
     direction: "upRight",
     pieceId: "sRechb",
-    isdestroyed : false
+    isdestroyed: false,
   },
 };
 function validatePlayer() {
@@ -422,43 +452,46 @@ function updateMovesBoard(add) {
 
 function gameOver(winner) {
   console.log(winner);
-  let displayName = "Blue"
+  let displayName = "Blue";
   if (winner == "playerRed") {
-    displayName = "Red"
+    displayName = "Red";
   }
+  const generalGameInfo = {
+    gameNumber: gameNumber,
+    winner: displayName,
+  };
+  movesHistory.push(generalGameInfo);
   const reqStr = `Player ${displayName} won the game`;
   const div = document.createElement("div");
-  div.innerText = reqStr
-  gameOverMenu.appendChild(div)
+  div.innerText = reqStr;
+  gameOverMenu.appendChild(div);
   gameOverMenu.appendChild(resetButton);
   gameOverMenu.showModal();
   playerRedTimer.stop();
   playerBlueTimer.stop();
-  gameOverMenu.classList.remove("hide")
+  gameOverMenu.classList.remove("hide");
   endGameProcedures();
   return;
 }
 const initialSetupString = JSON.stringify(pieceState);
 const initialOccupiedPositionsString = JSON.stringify(occupiedPositions);
 let pieceDomElements = {
-  redCanon : redCanon,
-  redTitan : redTitan,
-  redrech : redRech,
-  redsRech : redsRech,
-  redTank : redTank,
-  blueCanon : blueCanon,
-  blueTitan : blueTitan,
-  bluerech : blueRech,
-  bluesRech : bluesRech,
-  blueTank : blueTank,
-  
-}
+  redCanon: redCanon,
+  redTitan: redTitan,
+  redrech: redRech,
+  redsRech: redsRech,
+  redTank: redTank,
+  blueCanon: blueCanon,
+  blueTitan: blueTitan,
+  bluerech: blueRech,
+  bluesRech: bluesRech,
+  blueTank: blueTank,
+};
 function firstSetUp() {
   let initialSetUpObject = JSON.parse(initialSetupString);
   occupiedPositions = [];
   for (const key in initialSetUpObject) {
-    removeThePiece(pieceState[key]["position"],pieceState[key]["domElements"]);
-
+    removeThePiece(pieceState[key]["position"], pieceState[key]["domElements"]);
   }
   pieceState = initialSetUpObject;
   for (const key in pieceState) {
@@ -469,7 +502,7 @@ function firstSetUp() {
     occupiedPositions.push(initialSetUpObject[key]["position"]);
   }
   console.log(occupiedPositions);
-  whichPlayerTurn = "red"
+  whichPlayerTurn = "red";
   initialSetup();
   moveBoard.innerHTML = "";
   bulletDirectionArray = [];
@@ -976,6 +1009,7 @@ function removeThePiece(position, pieceDomElement) {
   const divToRemove = document.getElementById(position.toString());
   if (pieceDomElement && divToRemove.contains(pieceDomElement)) {
     divToRemove.removeChild(pieceDomElement);
+    divToRemove.innerText = position;
   }
   nodeList[position].classList.remove("piece");
 }
@@ -1073,6 +1107,7 @@ function detectPiece(position) {
   console.log(piece);
   const pieceId = piece.id;
   const pieceName = pieceId.slice(0, -1);
+  const playerIdntifier = pieceId[pieceId.length - 1];
   const playerIdentifierForSwap = pieceId[pieceId.length - 1];
   if (once) {
     if (whichPlayerTurn == "red") {
@@ -1082,18 +1117,38 @@ function detectPiece(position) {
     }
     once = false;
   }
-  if ((pieceName == "Tank" && !tankWeakningConfig) || pieceName == "Canon") {
+  if (pieceName == "Canon") {
     returnObject.canContinue = false;
     returnObject.increment = 0;
-  } else if (pieceName == "Tank" && tankWeakningConfig) {
+  } else if (pieceName == "Tank") {
     if (bulletDirection == "up" || bulletDirection == "down") {
       returnObject.canContinue = false;
       returnObject.increment = 0;
     } else {
-      if (bulletDirection == "left") {
-        returnObject.increment = -1;
+      if (playerIdntifier == "r") {
+        if (pieceState["redTank"]["isHard"]) {
+          returnObject.canContinue = false;
+          returnObject.increment = 0;
+        } else {
+          returnObject.canContinue = true;
+          if (bulletDirection == "left") {
+            returnObject.increment = -1;
+          } else {
+            returnObject.increment = 1;
+          }
+        }
       } else {
-        returnObject.increment = 1;
+        if (pieceState["blueTank"]["isHard"]) {
+          returnObject.canContinue = false;
+          returnObject.increment = 0;
+        } else {
+          returnObject.canContinue = true;
+          if (bulletDirection == "left") {
+            returnObject.increment = -1;
+          } else {
+            returnObject.increment = 1;
+          }
+        }
       }
     }
   } else if (pieceName == "Titan") {
@@ -1165,7 +1220,6 @@ function detectPiece(position) {
         bulletDirection = "left";
       } else {
         returnObject.canContinue = false;
-        // console.log("Here IS THE CONTROL");
         returnObject.destroyedsRech = {
           isDestroyed: true,
           whichsRech: whichsRech,
@@ -1262,9 +1316,12 @@ function calculateThePath() {
 function shootTheBullet() {
   initialDirectionOfTheBullet();
   calculateThePath();
+  console.log(bulletPath);
+  bulletTailPosition = bulletPath[0];
   bulletIsTravelling = true;
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
+    nodeList[bulletTailPosition].innerText = "";
     if (!bulletPath.length) {
       clearInterval(interval);
       bulletIsTravelling = false;
@@ -1275,7 +1332,7 @@ function shootTheBullet() {
     }
     if (bulletPath[0] == -1) {
       bulletIsTravelling = false;
-      // console.log(nodeList[isTitanHitAtPosition].children);
+      console.log(nodeList[isTitanHitAtPosition].children);
       let whichPlayerWon = "playerBlue";
       if (nodeList[isTitanHitAtPosition].classList.contains("playerBlue")) {
         whichPlayerWon = "playerRed";
@@ -1373,7 +1430,7 @@ function resetTheGame() {
   pauseMenu.close();
   firstSetUp();
   console.log("removed");
-  pauseMenu.classList.add("hide")
+  pauseMenu.classList.add("hide");
   endGameProcedures();
 }
 function undo() {
@@ -1384,7 +1441,7 @@ function undo() {
       alert("NO FURTHER UNDOS");
       return;
     }
-    
+
     const positions = movesHistory[index];
     let piece = positions.piece;
     if (positions.action == "swap") {
@@ -1441,7 +1498,6 @@ function undo() {
       let initialPosition2 = positions2.initialPosition;
       placeThePiece(initialPosition2, domElementRequired, reqPiece);
       occupiedPositions.push(positions2.initialPosition);
-
     } else if (positions.action == "rotation") {
       let rotation = positions.initialOrientation;
       rotateThepiece(piece, rotation, true);
@@ -1536,7 +1592,7 @@ function swapTheRech() {
     ) {
       continue;
     } else {
-      if (key == "redsRech"|| key == "bluesRech") {
+      if (key == "redsRech" || key == "bluesRech") {
         if (pieceState[key].isdestroyed) {
           continue;
         }
@@ -1602,3 +1658,12 @@ function swappingAction(gridElement, fromUndo) {
 }
 
 makeThePieces();
+
+function processTheSpell(response) {
+  let res = response.toLowerCase();
+  if (res == "hardertank") {
+    const pieceHard = whichPlayerTurn + "Tank";
+    pieceState[pieceHard]["isHard"] = true;
+    alert("Harder " + pieceHard);
+  }
+}

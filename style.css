@@ -89,11 +89,13 @@ header {
 .grey {
     background-color: #3e3e3e; /* Dark grey for grid */
     opacity: 1;
+    color: white;
 }
 
 .white {
     background-color: #cfcfcf; /* Light grey for grid */
     opacity: 1;
+    color: black;
 }
 
 .master {
@@ -253,6 +255,10 @@ footer {
     border-radius: 10px;
     background-color: yellow;
     align-self: center;
+    z-index: 1;
+}
+.bulletClass{
+    z-index: 2;
 }
 .hide{
     display: none;
@@ -262,6 +268,12 @@ footer {
     align-items: center;
     justify-content: center;
     width: 100%;
+}
+.NumberDiv{
+    z-index: 1;
+}
+.gridElement ::backdrop{
+    content: attr(id);
 }
  @keyframes moveDown {
     from{
@@ -359,6 +371,26 @@ footer {
     animation-name: moveRight;
 }
 
+.NumberDiv{
+    z-index: 1;
+}
+.spellDiv{
+    position: relative  ;
+    display: flex;
+    margin-bottom: 2%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 4%;
+}
+
+#spellInput{
+    margin-right: 2%;
+    width: 100% ;
+    height: 100% ;
+    font-size: x-large;
+    /* height: max-content; */
+    /* position: absolute;                                                                                                                   */
+}
 
 @media screen and (max-width: 1355px) {
     #middle {
