@@ -1514,6 +1514,11 @@ function resumeTheGame() {
     playerBlueTimer.start();
   }
   gameIsPaused = false;
+  if (singlePlayerModeisOn) {
+    if (whichPlayerTurn== "blue") {
+      botResponse();
+    }
+  }
 }
 function resetTheGame() {
   playerBlueTimer.stop();
@@ -1790,7 +1795,7 @@ function processTheSpell(response) {
 }
 
 function botResponse() {
-  if (whichPlayerTurn == "red" || gameIsOver) {
+  if (whichPlayerTurn == "red" || gameIsOver || gameIsPaused) {
     return;
   }
   const bluePiecesArray = [
@@ -1930,6 +1935,6 @@ function replayTheGame(gameObject) {
 }
 
 
-function strtTheGame() {
+function startTheGame() {
   playerRedTimer.start();
 }
