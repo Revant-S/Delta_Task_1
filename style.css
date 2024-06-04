@@ -337,41 +337,41 @@ footer {
 
 @keyframes moveDown {
     from {
-        transform: translateY(3px);
+        transform: translateY(0%);
     }
 
     to {
-        transform: translateY(78px);
+        transform: translateY(100%);
     }
 }
 
 @keyframes moveUp {
     from {
-        transform: translateY(-1px);
+        transform: translateY(100%);
     }
 
     to {
-        transform: translateY(-75px);
+        transform: translateY(0%);
     }
 }
 
 @keyframes moveRight {
     from {
-        transform: translateX(1px);
+        transform: translateX(0%);
     }
 
     to {
-        transform: translateX(75px);
+        transform: translateX(100%);
     }
 }
 
 @keyframes moveLeft {
     from {
-        transform: translateX(0px);
+        transform: translateX(100%);
     }
 
     to {
-        transform: translateX(-75px);
+        transform: translateX(0%);
     }
 }
 

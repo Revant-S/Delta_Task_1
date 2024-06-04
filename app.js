@@ -1432,7 +1432,6 @@ function shootTheBullet() {
       bulletIsTravelling = false;
       nodeList[finalBulletPosition].removeChild(bulletImageInUse);
       once = true;
-      oncesRech = true;
       return;
     }
     if (bulletPath[0] == -1) {
