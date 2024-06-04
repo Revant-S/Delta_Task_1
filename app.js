@@ -108,7 +108,6 @@ window.addEventListener("keypress", (e) => {
       processTheSpell(response);
     }
   }
-  console.log(e);
 });
 function getSvgString(number, backgroundColour) {
   const svgTemplates = [
@@ -505,10 +504,7 @@ function updateMovesBoard(add) {
       movesHistory[len - 1].sentence = reqString;
     }
   } else {
-    console.log(movesHistory);
     moveBoard.innerHTML = "";
-    // console.log("After Undo Or ReDo");
-    // console.log(movesHistory);
     for (let index = 0; index < movesHistory.length; index++) {
       const element = movesHistory[index];
       const divToAdd = document.createElement("div");
@@ -525,8 +521,6 @@ function updateMovesBoard(add) {
 }
 
 function gameOver(winner) {
-  console.log("Game Over");
-  console.log(winner);
   let displayName = "Blue";
   if (winner == "playerRed") {
     displayName = "Red";
@@ -578,7 +572,6 @@ function firstSetUp() {
     }
     occupiedPositions.push(initialSetUpObject[key]["position"]);
   }
-  console.log(occupiedPositions);
   whichPlayerTurn = "red";
   initialSetup();
   moveBoard.innerHTML = "";
@@ -613,6 +606,7 @@ function rotateThepiece(pieceName, response, fromUndo) {
   }
   if (!fromUndo) {
     moveNumber++;
+    movesIndex++;
   }
   hasUndone = false;
   const initialOrientation = pieceState[pieceName]["direction"];
@@ -621,7 +615,6 @@ function rotateThepiece(pieceName, response, fromUndo) {
     if (response == "right") {
       rechElement.classList.add("commonRotation");
       rechElement.classList.add("animateRotateRight");
-      console.log("animation Added");
       rechElement.style.transform = "rotate(0deg)";
     } else if (response == "left") {
       rechElement.classList.add("commonRotation");
@@ -1088,7 +1081,7 @@ function switchTheTurn() {
     playerRedTimer.start();
   }
   if (singlePlayerModeisOn && whichPlayerTurn == "blue") {
-    console.log("BOT RESPONSE IS HERE");
+    console.log("Control is reaching here");
     setTimeout(botResponse, 9000);
   }
 }
@@ -1112,7 +1105,6 @@ function clearTheRotationAnimation(piece) {
   let domelement = pieceState[piece]["domElement"];
   let image = domelement.firstChild;
   image.classList.remove("commonRotation");
-  // console.log("animations Removed");
 }
 
 function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
@@ -1141,6 +1133,7 @@ function moveThePiece(initialPosition, finalPosition, piece, fromUndo) {
     switchTheTurn();
     moveNumber++;
     updateMovesBoard(false);
+    movesIndex++;
   }
 }
 
@@ -1184,19 +1177,15 @@ function destroyThesRech(piece) {
 }
 
 function initialDirectionOfTheBullet() {
-  // console.log(bulletDirection);
   if (whichPlayerTurn == "red") {
     bulletDirection = "down";
   } else {
     bulletDirection = "up";
   }
-  // console.log("reaching");
 }
 function detectPiece(position) {
   let returnObject = { canContinue: true, increment: 0, game: true };
   const piece = nodeList[position].firstChild;
-  console.log(nodeList[position]);
-  console.log(piece);
   const pieceId = piece.id;
   const pieceName = pieceId.slice(0, -1);
   const playerIdntifier = pieceId[pieceId.length - 1];
@@ -1341,7 +1330,6 @@ function detectPiece(position) {
         returnObject.increment = -1;
         bulletDirection = "left";
       } else {
-        // console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
         returnObject.destroyedsRech = {
           isDestroyed: true,
@@ -1356,7 +1344,6 @@ function detectPiece(position) {
         returnObject.increment = 8;
         bulletDirection = "down";
       } else {
-        // console.log("Here IS THE CONTROL");
         returnObject.canContinue = false;
         returnObject.destroyedsRech = {
           isDestroyed: true,
@@ -1393,8 +1380,6 @@ function calculateThePath() {
     } else {
       bulletPath.push(bulletPosition);
       const forwardObject = detectPiece(bulletPosition);
-      // console.log("forward Object");
-      // console.log(forwardObject);
       if (!forwardObject.canContinue) {
         if (
           forwardObject.destroyedsRech &&
@@ -1436,16 +1421,7 @@ function shootTheBullet() {
     }
     if (bulletPath[0] == -1) {
       bulletIsTravelling = false;
-      console.log("LOOK HERE MF");
-      console.log(nodeList[isTitanHitAtPosition].children);
       let whichPlayerWon = "playerRed";
-      console.log(isTitanHitAtPosition);
-      console.log("HELLO SIR SEE HERE!!!!!!!");
-      console.log(
-        nodeList[isTitanHitAtPosition].firstChild.classList.contains(
-          "playerRed"
-        )
-      );
       if (
         nodeList[isTitanHitAtPosition].firstChild.classList.contains(
           "playerRed"
@@ -1546,10 +1522,13 @@ function resetTheGame() {
   playerRedTimer.stop();
   pauseMenu.close();
   firstSetUp();
-  console.log("removed");
   pauseMenu.classList.add("hide");
   endGameProcedures();
+  startTheGame();
 }
+
+let movesIndex = 0;
+
 function undo() {
   try {
     shouldHistoryBeCleared = true;
@@ -1558,7 +1537,9 @@ function undo() {
       alert("NO FURTHER UNDOS");
       return;
     }
-
+    if (index>=movesHistory.length) {
+      index = movesHistory.length -1;
+    }
     const positions = movesHistory[index];
     let piece = positions.piece;
     if (positions.action == "swap") {
@@ -1590,6 +1571,7 @@ function undo() {
       numberOfReplaySteps++;
       moveThePiece(finalPosition, initialPosition, piece, true);
     } else if (positions.destroyedSrech) {
+      console.log(movesHistory);
       const destroyedPiece = positions.piece;
       const comparingObject = movesHistory[index - 1];
       pieceState[destroyedPiece]["isdestroyed"] = false;
@@ -1611,7 +1593,6 @@ function undo() {
       positions.destroyedSrech = false;
       numberOfReplaySteps++;
       let positions2 = movesHistory[index5];
-
       let initialPosition2 = positions2.initialPosition;
       placeThePiece(initialPosition2, domElementRequired, reqPiece);
       occupiedPositions.push(positions2.initialPosition);
@@ -1624,9 +1605,7 @@ function undo() {
     switchTheTurn();
     updateMovesBoard(false);
   } catch (e) {
-    underReplayFstsetup = false;
-    alert("No further Undos !!!");
-    console.log(e);
+    // alert("No further Undos !!!");
   }
 }
 
@@ -1644,11 +1623,10 @@ function redo() {
       return;
     }
     shouldHistoryBeCleared = true;
-
+    
     const positions = movesHistory[index];
     let piece = positions.piece;
     if (positions.action == "swap") {
-      // console.log(movesHistory);
       let swappingPieceOneInfo = positions.swappingPieceOneInfo;
       let swappingPieceTwoInfo = positions.swappingPieceTwoInfo;
       removeThePiece(
@@ -1669,10 +1647,13 @@ function redo() {
         swappingPieceTwoInfo.selectedPieceDomElement,
         swappingPieceTwoInfo.swappingPiece
       );
+      switchTheTurn();
     } else if (positions.action == "movement") {
+
       let initialPosition = positions.initialPosition;
       let finalPosition = positions.finalPosition;
       moveThePiece(initialPosition, finalPosition, piece, true);
+      switchTheTurn();
     } else if (positions.action == "destroyed") {
       let positionWhereDestroyed = positions.positionWhereDestroyed;
       let piece = positions.piece;
@@ -1687,14 +1668,13 @@ function redo() {
     } else {
       let rotation = positions.finalOrientation;
       rotateThepiece(piece, rotation, true);
+      switchTheTurn();
     }
     hasUndone = true;
-    switchTheTurn();
     updateMovesBoard(false);
   } catch (e) {
     let index = movesHistory.length - 1 - numberOfReplaySteps;
     alert("No further Undos !!!");
-    console.log(index);
   }
 }
 
@@ -1714,7 +1694,6 @@ function swapTheRech() {
           continue;
         }
       }
-      console.log(pieceState[key]["domElement"]);
       pieceState[key].domElement.parentNode.classList.add("highlight");
       isReadyToSwap = true;
     }
@@ -1770,8 +1749,6 @@ function swappingAction(gridElement, fromUndo) {
     switchTheTurn();
     removeTheButtons();
   }
-  console.log(occupiedPositions);
-  console.log(pieceState);
 }
 
 makeThePieces();
@@ -1846,11 +1823,9 @@ function botResponse() {
   const positionSelectedIndex = Math.floor(Math.random() * possiblePos.length);
   const positionSelectedByBot = possiblePos[positionSelectedIndex];
   const selectedpieceObject = pieceState[selectedPieceByBot];
-  console.log(selectedpieceObject);
   const intialPositionOfBotPiece = selectedpieceObject.position;
   const finalPosition = positionSelectedByBot;
   const selectedBotPieceDomElement = selectedpieceObject["domElement"];
-  console.log(selectedBotPieceDomElement);
   moveThePiece(
     intialPositionOfBotPiece,
     finalPosition,
@@ -1872,7 +1847,6 @@ function addReplayOptions() {
     replayOption.innerText = "Game " + index;
     replayOption.addEventListener("click", (e) => {
       const reqEmenetId = parseInt(e.target.id);
-      console.log(parseInt(e.target.id));
       const gameObject = JSON.parse(
         localStorage.getItem(reqEmenetId.toString())
       );
@@ -1885,7 +1859,6 @@ function addReplayOptions() {
 function replayTheGame(gameObject) {
   startMenu.close();
   overlay.classList.remove("overlay");
-  console.log(gameObject);
   singlePlayerModeisOn = false;
   gameReplayIsOn = true;
   const Originalmoves = gameObject["movesHistory"];
@@ -1908,8 +1881,6 @@ function replayTheGame(gameObject) {
     playerBlueTimer.stop();
 
     let moveObject = moves[index];
-    console.log(moveObject);
-
     if (moveObject["action"] == "movement") {
       moveThePiece(
         moveObject.initialPosition,
@@ -1956,4 +1927,6 @@ function replayTheGame(gameObject) {
 
 function startTheGame() {
   playerRedTimer.start();
+  gameIsPaused = false;
+  gameIsOver = false;
 }
