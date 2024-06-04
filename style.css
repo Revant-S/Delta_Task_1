@@ -522,6 +522,10 @@ footer {
     height: 0px;
 
 }
+.gridElement::backdrop{
+    content: attr(id);
+}
+
 
 .up {
     display: flex;

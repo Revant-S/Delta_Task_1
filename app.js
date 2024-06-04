@@ -1,8 +1,6 @@
 const board = document.querySelector(".board");
-const body = document.querySelector("body");
 const overlay = document.getElementById("CompleteGame");
 let row = 0;
-let colour = ["red", "blue"];
 let possiblePos = [];
 let occupiedPositions = [2, 9, 4, 14, 49, 58, 60, 54, 55, 36];
 let selectedPiece;
@@ -13,10 +11,7 @@ let sRechButtonsPresent = false;
 let bulletPath = [];
 let bulletDirectionArray = [];
 let bulletDirection = "up";
-let totalTimeOfRed = 300;
-let totalTimeOfblue = 300;
 let once = true;
-let oncesRech = true;
 let gameIsPaused = false;
 let pieceSelectedOf = "red";
 let movesHistory = [];
@@ -26,18 +21,13 @@ let shouldHistoryBeCleared = false;
 let moveNumber = 1;
 let isReadyToSwap = false;
 let swappingRech = "redrech";
-let swappingPiece = null;
-let tankWeakningConfig = true;
 let bulletImageInUse = null;
 let isTitanHitAtPosition;
-let underReplayFstsetup = false;
 let bulletIsTravelling = false;
-let bulletTailPosition;
 let singlePlayerModeisOn = true;
 let gameIsOver = false;
 let gameReplayIsOn = false;
 let winnerInfo = {};
-const spellDiv = document.querySelector(".spellDiv");
 const spellInput = document.getElementById("spellInput");
 const pauseMenu = document.getElementById("pauseMenu");
 const gameOverMenu = document.getElementById("gameOver");
@@ -70,14 +60,11 @@ if (!gameNumber) {
 let undoButton = document.getElementById("undoButton");
 let redoButton = document.getElementById("redoButton");
 let resetButton = document.createElement("button");
-const movesContainer = document.querySelector(".moves");
 const turnName = document.querySelector("#turnName");
 const buttonSpace = document.querySelector("#buttonSpace");
-const pauseplaybuttonSpace = document.createElement("div");
 const pauseButton = document.getElementById("pauseButton");
 const swapButton = document.createElement("button");
 const startMenu = document.getElementById("startMenu");
-const updiv = document.querySelector("up");
 swapButton.innerText = "Swap";
 swapButton.classList.add("btn");
 
@@ -101,7 +88,7 @@ window.addEventListener("load", () => {
     startMenu.innerHTML = "";
     startMenu.classList.add("gameMenu");
     addReplayOptions();
-    startTheGame()
+    startTheGame();
   });
 });
 
@@ -109,7 +96,7 @@ const spellsArray = ["hardertank", "longlivetitan", "addtime"];
 
 window.addEventListener("keypress", (e) => {
   if (gameReplayIsOn) {
-    return
+    return;
   }
   let response;
   if (e.key == "Enter") {
@@ -123,6 +110,38 @@ window.addEventListener("keypress", (e) => {
   }
   console.log(e);
 });
+function getSvgString(number, backgroundColour) {
+  const svgTemplates = [
+    `<svg class="svg-container" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<rect width="100" height="100" fill="#3e3e3e" />
+<text x="50" y="50" font-size="36" fill="white" text-anchor="middle" dominant-baseline="middle">${number}</text>
+</svg>`,
+    `<svg class="svg-container" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<rect width="100" height="100" fill="#cfcfcf" />
+<text x="50" y="50" font-size="36" fill="black" text-anchor="middle" dominant-baseline="middle">${number}</text>
+</svg>`,
+  ];
+  if (backgroundColour  == "grey") {
+    return svgTemplates[0]
+  }
+  return svgTemplates[1];
+}
+
+function svgToDataURL(svgString) {
+  const encodedSVG = encodeURIComponent(svgString)
+    .replace(/'/g, "%27")
+    .replace(/"/g, "%22");
+  return `data:image/svg+xml;charset=utf-8,${encodedSVG}`;
+}
+
+export function setSvgBackground(element,index ,backgroundColour) {
+  const svgString = getSvgString(index , backgroundColour)
+  const svgDataURL = svgToDataURL(svgString);
+  element.style.backgroundImage = `url(${svgDataURL})`;
+  element.style.backgroundSize = "80%"; 
+  element.style.backgroundPosition = "center"; 
+  element.style.backgroundRepeat = "no-repeat"; 
+}
 
 function generateTheBoard() {
   pauseMenu.classList.add("hide");
@@ -130,12 +149,10 @@ function generateTheBoard() {
     const gridElement = document.createElement("div");
     gridElement.classList.add("gridElement");
     gridElement.id = index;
-    const NumberDiv = document.createElement("div");
-
-    gridElement.innerText = index;
+    // gridElement.innerText = index;
     gridElement.addEventListener("click", () => {
       const classes = gridElement.classList;
-
+      
       if (!classes.contains("piece") && !classes.contains("highlight")) {
         removeTheButtons();
         removeTheHighlight();
@@ -151,27 +168,31 @@ function generateTheBoard() {
         );
       }
     });
-
+    
     if (row % 2 == 0) {
       if (index % 2 == 0) {
         gridElement.classList.add("grey");
+        setSvgBackground(gridElement,index,"grey");
       } else if (index % 2 == 1) {
         gridElement.classList.add("white");
+        setSvgBackground(gridElement,index,"white");
       }
       if ((index + 1) % 8 == 0) {
         row++;
       }
     } else if (row % 2 != 0) {
       if (index % 2 != 0) {
+        setSvgBackground(gridElement,index,"grey");
         gridElement.classList.add("grey");
       } else if (index % 2 == 0) {
+        setSvgBackground(gridElement,index,"white");
         gridElement.classList.add("white");
       }
       if ((index + 1) % 8 == 0) {
         row++;
       }
     }
-
+    
     board.appendChild(gridElement);
   }
   pauseButton.addEventListener("click", (e) => {
@@ -504,7 +525,6 @@ function updateMovesBoard(add) {
 }
 
 function gameOver(winner) {
-
   console.log("Game Over");
   console.log(winner);
   let displayName = "Blue";
@@ -517,9 +537,9 @@ function gameOver(winner) {
   const div = document.createElement("div");
   div.innerText = reqStr;
   if (gameReplayIsOn) {
-    div.innerText = `Replay Ends`
-   gameOverMenu.appendChild(div) ;
-   return
+    div.innerText = `Replay Ends`;
+    gameOverMenu.appendChild(div);
+    return;
   }
   gameOverMenu.appendChild(div);
   gameOverMenu.appendChild(resetButton);
@@ -967,7 +987,7 @@ function makeThePieces() {
 function createTimer(player, displayElement) {
   this.player = player;
   this.numberOfIncrement = 0;
-  this.totalTime = 300; 
+  this.totalTime = 300;
   this.remainingTime = this.totalTime;
   this.timer = null;
   this.isRunning = false;
@@ -985,7 +1005,7 @@ function createTimer(player, displayElement) {
   this.updateDisplay = function () {
     if (gameReplayIsOn) {
       this.displayElement.innerText = "Replay Mode";
-      return
+      return;
     }
     this.displayElement.innerText = this.formatTime(this.remainingTime);
   };
@@ -1030,7 +1050,6 @@ const blueTimerElement = document.getElementById("blue-timer");
 
 const playerRedTimer = new createTimer("Red", redTimerElement);
 const playerBlueTimer = new createTimer("Blue", blueTimerElement);
-
 
 function updateHistory(
   piece,
@@ -1086,7 +1105,6 @@ function removeThePiece(position, pieceDomElement) {
   const divToRemove = document.getElementById(position.toString());
   if (pieceDomElement && divToRemove.contains(pieceDomElement)) {
     divToRemove.removeChild(pieceDomElement);
-    divToRemove.innerText = position;
   }
   nodeList[position].classList.remove("piece");
 }
@@ -1231,8 +1249,7 @@ function detectPiece(position) {
         returnObject.canContinue = false;
         returnObject.increment = 0;
         pieceState["redTitan"]["isStronger"] = false;
-      }
-      else{
+      } else {
         returnObject.game = false;
       }
     } else {
@@ -1240,7 +1257,7 @@ function detectPiece(position) {
         returnObject.canContinue = false;
         returnObject.increment = 0;
         pieceState["blueTitan"]["isStronger"] = false;
-      }else{
+      } else {
         returnObject.game = false;
       }
     }
@@ -1407,8 +1424,6 @@ function calculateThePath() {
 function shootTheBullet() {
   initialDirectionOfTheBullet();
   calculateThePath();
-  console.log(bulletPath);
-  bulletTailPosition = bulletPath[0];
   bulletIsTravelling = true;
   const finalBulletPosition = bulletPath[bulletPath.length - 1];
   let interval = setInterval(() => {
@@ -1427,8 +1442,16 @@ function shootTheBullet() {
       let whichPlayerWon = "playerRed";
       console.log(isTitanHitAtPosition);
       console.log("HELLO SIR SEE HERE!!!!!!!");
-      console.log(nodeList[isTitanHitAtPosition].firstChild.classList.contains("playerRed"));
-      if (nodeList[isTitanHitAtPosition].firstChild.classList.contains("playerRed")) {
+      console.log(
+        nodeList[isTitanHitAtPosition].firstChild.classList.contains(
+          "playerRed"
+        )
+      );
+      if (
+        nodeList[isTitanHitAtPosition].firstChild.classList.contains(
+          "playerRed"
+        )
+      ) {
         whichPlayerWon = "playerBlue";
       }
       bulletIsTravelling = false;
@@ -1479,8 +1502,7 @@ function shootTheBullet() {
       if (nodeList[bulletPath[0]].classList.contains("piece")) {
         nodeList[bulletPath[0]].removeChild(bulletImageInUse);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
     bulletDirectionArray.shift();
     bulletPath.shift();
   }, 200);
@@ -1515,7 +1537,7 @@ function resumeTheGame() {
   }
   gameIsPaused = false;
   if (singlePlayerModeisOn) {
-    if (whichPlayerTurn== "blue") {
+    if (whichPlayerTurn == "blue") {
       botResponse();
     }
   }
@@ -1871,7 +1893,7 @@ function replayTheGame(gameObject) {
   let moves = [];
   for (let index = 0; index < Originalmoves.length; index++) {
     const element = Originalmoves[index];
-    if (element["action"]== "destroyed") {
+    if (element["action"] == "destroyed") {
       continue;
     }
     moves.push(element);
@@ -1885,7 +1907,7 @@ function replayTheGame(gameObject) {
   const inter = setInterval(function () {
     playerRedTimer.stop();
     playerBlueTimer.stop();
-    
+
     let moveObject = moves[index];
     console.log(moveObject);
 
@@ -1930,10 +1952,8 @@ function replayTheGame(gameObject) {
     if (index >= moves.length) {
       clearInterval(inter);
     }
-    
   }, 7000);
 }
-
 
 function startTheGame() {
   playerRedTimer.start();
